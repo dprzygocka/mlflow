@@ -20,10 +20,11 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     String,
 )
+import sqlalchemy
 from sqlalchemy.orm import backref, declarative_base, relationship
 
 Base = declarative_base()
-
+print("now here")
 
 SourceTypes = [
     "NOTEBOOK",
@@ -48,7 +49,9 @@ class SqlExperiment(Base):
 
     __tablename__ = "experiments"
 
-    experiment_id = Column(Integer, autoincrement=True)
+    #experiment_id = Column(Integer, autoincrement=True)
+    experiment_id_seq = sqlalchemy.Sequence('experiment_id')
+    experiment_id = Column('experiment_id', Integer, experiment_id_seq, server_default=experiment_id_seq.next_value(), primary_key=True)
     """
     Experiment ID: `Integer`. *Primary Key* for ``experiment`` table.
     """

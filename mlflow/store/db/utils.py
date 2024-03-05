@@ -7,6 +7,7 @@ import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import sql
+from sqlalchemy import create_engine, inspect
 
 # We need to import sqlalchemy.pool to convert poolclass string to class object
 from sqlalchemy.pool import (
@@ -62,6 +63,8 @@ def _get_package_dir():
 
 
 def _all_tables_exist(engine):
+    print('in utils _all_tables_exist')
+    print(sqlalchemy.inspect(engine).get_table_names())
     return {
         t
         for t in sqlalchemy.inspect(engine).get_table_names()
@@ -89,6 +92,11 @@ def _all_tables_exist(engine):
 def _initialize_tables(engine):
     _logger.info("Creating initial MLflow database tables...")
     InitialBase.metadata.create_all(engine)
+    inspector = inspect(engine)
+    table_names = inspector.get_table_names()
+
+    # Print the table names
+    print("Tables in the database:", table_names)
     _upgrade_db(engine)
 
 
@@ -186,6 +194,8 @@ def _get_alembic_config(db_url, alembic_dir=None):
     db_url = db_url.replace("%", "%%")
     config = Config(os.path.join(final_alembic_dir, "alembic.ini"))
     config.set_main_option("script_location", final_alembic_dir)
+    print('make sure that alembic connects to right db')
+    print(db_url)
     config.set_main_option("sqlalchemy.url", db_url)
     return config
 
@@ -203,18 +213,29 @@ def _upgrade_db(engine):
     """
     # alembic adds significant import time, so we import it lazily
     from alembic import command
+    from alembic.ddl.impl import DefaultImpl
+
+    print(sqlalchemy.inspect(engine).get_table_names())
+    for t in sqlalchemy.inspect(engine).get_table_names():
+        print('name of th etable 2')
+        print(t)
+
+    class AlembicDuckDBImpl(DefaultImpl):
+        """Alembic implementation for DuckDB."""
+
+        __dialect__ = "duckdb"
 
     db_url = str(engine.url)
     _logger.info("Updating database tables")
     config = _get_alembic_config(db_url)
+
     # Initialize a shared connection to be used for the database upgrade, ensuring that
     # any connection-dependent state (e.g., the state of an in-memory database) is preserved
     # for reference by the upgrade routine. For more information, see
     # https://alembic.sqlalchemy.org/en/latest/cookbook.html#sharing-a-
     # connection-with-a-series-of-migration-commands-and-environments
-    with engine.begin() as connection:
-        config.attributes["connection"] = connection
-        command.upgrade(config, "heads")
+
+    command.upgrade(config, "heads")
 
 
 def _get_schema_version(engine):
@@ -227,9 +248,12 @@ def create_sqlalchemy_engine_with_retry(db_uri):
     attempts = 0
     while True:
         attempts += 1
+        print("create_sqlalchemy_engine_with_retry")
         engine = create_sqlalchemy_engine(db_uri)
+        print(engine)
         try:
             sqlalchemy.inspect(engine)
+            print("try")
             return engine
         except Exception as e:
             if attempts < MAX_RETRY_COUNT:
@@ -283,4 +307,10 @@ def create_sqlalchemy_engine(db_uri):
         pool_kwargs["poolclass"] = pool_class_map[poolclass]
     if pool_kwargs:
         _logger.info("Create SQLAlchemy engine with pool options %s", pool_kwargs)
+    print("utils.py 286")
+    print("db_uri")
+    print(db_uri)
+    print("**pool_kwargs")
+    print(**pool_kwargs)
+    print("db_uri", db_uri)
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)

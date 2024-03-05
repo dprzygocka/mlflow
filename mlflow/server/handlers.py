@@ -118,6 +118,10 @@ class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
         self.register("", self._get_file_store)
         self.register("file", self._get_file_store)
         for scheme in DATABASE_ENGINES:
+            print("scheme")
+            print(scheme)
+            print("self._get_sqlalchemy_store")
+            print(self._get_sqlalchemy_store)
             self.register(scheme, self._get_sqlalchemy_store)
         self.register_entrypoints()
 
@@ -271,13 +275,26 @@ def _get_proxied_run_artifact_destination_path(proxied_artifact_root, relative_p
 
 
 def _get_tracking_store(backend_store_uri=None, default_artifact_root=None):
+    print("_get_tracking_store")
     from mlflow.server import ARTIFACT_ROOT_ENV_VAR, BACKEND_STORE_URI_ENV_VAR
+    print("ARTIFACT_ROOT_ENV_VAR")
+    print(ARTIFACT_ROOT_ENV_VAR)
+    print("BACKEND_STORE_URI_ENV_VAR")
+    print(BACKEND_STORE_URI_ENV_VAR)
 
     global _tracking_store
+    print("_tracking_store")
+    print(_tracking_store)
     if _tracking_store is None:
         store_uri = backend_store_uri or os.environ.get(BACKEND_STORE_URI_ENV_VAR, None)
+        print("store_uri")
+        print(store_uri)
         artifact_root = default_artifact_root or os.environ.get(ARTIFACT_ROOT_ENV_VAR, None)
+        print("artifact_root")
+        print(artifact_root)
         _tracking_store = _tracking_store_registry.get_store(store_uri, artifact_root)
+        print("_tracking_store")
+        print(_tracking_store)
         utils.set_tracking_uri(store_uri)
     return _tracking_store
 
@@ -300,7 +317,9 @@ def _get_model_registry_store(registry_store_uri=None):
 def initialize_backend_stores(
     backend_store_uri=None, registry_store_uri=None, default_artifact_root=None
 ):
+    print("initialize_backend_stores")
     _get_tracking_store(backend_store_uri, default_artifact_root)
+    print("after _get_tracking_store")
     try:
         _get_model_registry_store(registry_store_uri)
     except UnsupportedModelRegistryStoreURIException:

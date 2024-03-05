@@ -23,6 +23,7 @@ class ModelRegistryStoreRegistry(StoreRegistry):
         super().__init__("mlflow.model_registry_store")
 
     def get_store(self, store_uri=None, tracking_uri=None):
+        print("mlflow\tracking\model_registry")
         """Get a store from the registry based on the scheme of store_uri
 
         Args:

@@ -56,7 +56,7 @@ def upgrade():
 
     op.create_table(
         SqlModelVersion.__tablename__,
-        Column("name", String(256), ForeignKey("registered_models.name", onupdate="cascade")),
+        Column("name", String(256), ForeignKey("registered_models.name", onupdate="RESTRICT")),
         Column("version", Integer, nullable=False),
         Column("creation_time", BigInteger, default=lambda: int(time.time() * 1000)),
         Column("last_updated_time", BigInteger, nullable=True, default=None),

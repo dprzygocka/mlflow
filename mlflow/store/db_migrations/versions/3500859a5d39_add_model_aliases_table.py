@@ -33,8 +33,8 @@ def upgrade():
                 sa.String(length=256),
                 sa.ForeignKey(
                     "registered_models.name",
-                    onupdate="cascade",
-                    ondelete="cascade",
+                    onupdate="RESTRICT",
+                    ondelete="RESTRICT",
                     name="registered_model_alias_name_fkey",
                 ),
                 primary_key=True,

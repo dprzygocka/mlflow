@@ -74,6 +74,8 @@ def set_tracking_uri(uri: Union[str, Path]) -> None:
         # then .resolve() to clean the path
         uri = uri.absolute().resolve().as_uri()
     global _tracking_uri
+    print("set _tracking_uri")
+    print(uri)
     _tracking_uri = uri
 
 
