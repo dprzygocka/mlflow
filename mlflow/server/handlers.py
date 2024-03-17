@@ -129,6 +129,9 @@ class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
     @classmethod
     def _get_file_store(cls, store_uri, artifact_uri):
         from mlflow.store.tracking.file_store import FileStore
+        print('how do you have store_uri, artifact_uri')
+        print(store_uri)
+        print(artifact_uri)
 
         return FileStore(store_uri, artifact_uri)
 

@@ -140,6 +140,7 @@ class SqlAlchemyStore(AbstractStore):
         # Quick check to see if the respective SQLAlchemy database engine has already been created.
         if db_uri not in SqlAlchemyStore._db_uri_sql_alchemy_engine_map:
             with SqlAlchemyStore._db_uri_sql_alchemy_engine_map_lock:
+                print('we init new stores for db uri')
                 # Repeat check to prevent race conditions where one thread checks for an existing
                 # engine while another is creating the respective one, resulting in multiple
                 # engines being created. It isn't combined with the above check to prevent

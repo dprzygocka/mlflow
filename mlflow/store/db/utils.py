@@ -101,20 +101,24 @@ def _initialize_tables(engine):
 
 
 def _get_latest_schema_revision():
+    print('_get_latest_schema_revision')
     """Get latest schema revision as a string."""
     # We aren't executing any commands against a DB, so we leave the DB URL unspecified
     config = _get_alembic_config(db_url="")
     script = ScriptDirectory.from_config(config)
+    print('beofre heads')
     heads = script.get_heads()
     if len(heads) != 1:
         raise MlflowException(
             f"Migration script directory was in unexpected state. Got {len(heads)} head "
             f"database versions but expected only 1. Found versions: {heads}"
         )
+    print('finish verifcation of latest schema revision')
     return heads[0]
 
 
 def _verify_schema(engine):
+    print('verify schema')
     head_revision = _get_latest_schema_revision()
     current_rev = _get_schema_version(engine)
     if current_rev != head_revision:
@@ -169,6 +173,8 @@ def _get_managed_session_maker(SessionMaker, db_type):
 
 
 def _get_alembic_config(db_url, alembic_dir=None):
+    print('_get_alembic_config')
+    print(db_url)
     """
     Constructs an alembic Config object referencing the specified database and migration script
     directory.
@@ -189,6 +195,8 @@ def _get_alembic_config(db_url, alembic_dir=None):
         if alembic_dir is None
         else alembic_dir
     )
+    print('final_alembic_dir')
+    print(final_alembic_dir)
     # Escape any '%' that appears in a db_url. This could be in a password,
     # url, or anything that is part of a potentially complex database url
     db_url = db_url.replace("%", "%%")
@@ -197,6 +205,8 @@ def _get_alembic_config(db_url, alembic_dir=None):
     print('make sure that alembic connects to right db')
     print(db_url)
     config.set_main_option("sqlalchemy.url", db_url)
+    print('end of the function _get_alembic_config')
+    print(config)
     return config
 
 
@@ -239,6 +249,16 @@ def _upgrade_db(engine):
 
 
 def _get_schema_version(engine):
+    from alembic.ddl.impl import DefaultImpl
+
+    class AlembicDuckDBImpl(DefaultImpl):
+        """Alembic implementation for DuckDB."""
+
+        __dialect__ = "duckdb"
+
+    print('_get_schema_version')
+    print('engine')
+    print(engine)
     with engine.connect() as connection:
         mc = MigrationContext.configure(connection)
         return mc.get_current_revision()
@@ -253,7 +273,7 @@ def create_sqlalchemy_engine_with_retry(db_uri):
         print(engine)
         try:
             sqlalchemy.inspect(engine)
-            print("try")
+            print("sqlalchemy inspection worked")
             return engine
         except Exception as e:
             if attempts < MAX_RETRY_COUNT:
@@ -313,4 +333,6 @@ def create_sqlalchemy_engine(db_uri):
     print("**pool_kwargs")
     print(**pool_kwargs)
     print("db_uri", db_uri)
+    print('ask sql alchemy to create engine based on uri')
+    print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
