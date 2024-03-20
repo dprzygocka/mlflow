@@ -138,6 +138,8 @@ class SqlAlchemyStore(AbstractStore):
         self.db_type = extract_db_type_from_uri(db_uri)
         self.artifact_root_uri = resolve_uri_if_local(default_artifact_root)
         # Quick check to see if the respective SQLAlchemy database engine has already been created.
+        print(' SqlAlchemyStore._db_uri_sql_alchemy_engine_map')
+        print( SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
         if db_uri not in SqlAlchemyStore._db_uri_sql_alchemy_engine_map:
             with SqlAlchemyStore._db_uri_sql_alchemy_engine_map_lock:
                 print('we init new stores for db uri')
@@ -150,6 +152,9 @@ class SqlAlchemyStore(AbstractStore):
                     SqlAlchemyStore._db_uri_sql_alchemy_engine_map[
                         db_uri
                     ] = mlflow.store.db.utils.create_sqlalchemy_engine_with_retry(db_uri)
+
+        print(' SqlAlchemyStore._db_uri_sql_alchemy_engine_map')
+        print( SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
         self.engine = SqlAlchemyStore._db_uri_sql_alchemy_engine_map[db_uri]
         # On a completely fresh MLflow installation against an empty database (verify database
         # emptiness by checking that 'experiments' etc aren't in the list of table names), run all

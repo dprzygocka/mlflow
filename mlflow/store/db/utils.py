@@ -248,6 +248,10 @@ def _upgrade_db(engine):
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
 
+    if connection.is_closed:
+        print("Connection is closed.")
+    else:
+        print("Connection is still open.")
 
 def _get_schema_version(engine):
     from alembic.ddl.impl import DefaultImpl
