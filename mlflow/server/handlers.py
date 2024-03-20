@@ -1248,6 +1248,7 @@ def get_metric_history_bulk_interval_handler():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def search_datasets_handler():
+    print('search_datasets_handler')
     MAX_EXPERIMENT_IDS_PER_REQUEST = 20
     _validate_content_type(request, ["application/json"])
     experiment_ids = request.json.get("experiment_ids", [])
