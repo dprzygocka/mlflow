@@ -336,4 +336,13 @@ def create_sqlalchemy_engine(db_uri):
     print("db_uri", db_uri)
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
+    config = _get_alembic_config(db_uri)
+    if "connection" in config.attributes:
+        print('Connection exists')
+        connection = config.attributes["connection"]
+        if connection is not None:
+            connection.close()
+            print('Connection closed')
+    else:
+        print('Connection attribute not found')
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
