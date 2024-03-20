@@ -128,6 +128,7 @@ def serve_static_file(path):
 # Serve the index.html for the React App for all other routes.
 @app.route(_add_static_prefix("/"))
 def serve():
+    print('serve')
     if os.path.exists(os.path.join(app.static_folder, "index.html")):
         return send_from_directory(app.static_folder, "index.html")
 
@@ -276,6 +277,7 @@ def _run_server(
         app = f"{__name__}:app"
         is_factory = False
     else:
+        print('app')
         app = _find_app(app_name)
         is_factory = _is_factory(app)
         # `waitress` doesn't support `()` syntax for factory functions.
