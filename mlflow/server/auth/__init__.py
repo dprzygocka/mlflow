@@ -503,6 +503,7 @@ def set_can_manage_registered_model_permission(resp: Response):
 
 
 def filter_search_experiments(resp: Response):
+    print('filter_search_experiments')
     if sender_is_admin():
         return
 

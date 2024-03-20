@@ -1264,9 +1264,9 @@ def search_datasets_handler():
             ),
             error_code=INVALID_PARAMETER_VALUE,
         )
-
+    print('tracking store')
     store = _get_tracking_store()
-
+    print('tracking store passed')
     if hasattr(store, "_search_datasets"):
         return {
             "dataset_summaries": [
@@ -1274,6 +1274,7 @@ def search_datasets_handler():
             ]
         }
     else:
+        print('not implemented')
         return _not_implemented()
 
 
