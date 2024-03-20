@@ -84,4 +84,6 @@ class StoreRegistry:
             raise UnsupportedModelRegistryStoreURIException(
                 unsupported_uri=store_uri, supported_uri_schemes=list(self._registry.keys())
             )
+        print('store_builder')
+        print(store_builder)
         return store_builder
