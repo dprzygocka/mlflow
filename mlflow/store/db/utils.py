@@ -244,8 +244,9 @@ def _upgrade_db(engine):
     # for reference by the upgrade routine. For more information, see
     # https://alembic.sqlalchemy.org/en/latest/cookbook.html#sharing-a-
     # connection-with-a-series-of-migration-commands-and-environments
-
-    command.upgrade(config, "heads")
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        command.upgrade(config, "heads")
 
 
 def _get_schema_version(engine):
