@@ -575,6 +575,7 @@ def _disable_if_artifacts_only(func):
 
 @catch_mlflow_exception
 def get_artifact_handler():
+    print('get_artifact_handler')
     from querystring_parser import parser
 
     query_string = request.query_string.decode("utf-8")
@@ -609,6 +610,7 @@ def _not_implemented():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _create_experiment():
+    print('_create_experiment')
     request_message = _get_request_message(
         CreateExperiment(),
         schema={
@@ -647,6 +649,7 @@ def _get_experiment():
 
 
 def get_experiment_impl(request_message):
+    print('get_experiment_impl')
     response_message = GetExperiment.Response()
     experiment = _get_tracking_store().get_experiment(request_message.experiment_id).to_proto()
     response_message.experiment.MergeFrom(experiment)
@@ -656,6 +659,7 @@ def get_experiment_impl(request_message):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_experiment_by_name():
+    print('_get_experiment_by_name')
     request_message = _get_request_message(
         GetExperimentByName(), schema={"experiment_name": [_assert_required, _assert_string]}
     )
@@ -676,6 +680,7 @@ def _get_experiment_by_name():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_experiment():
+    print('_delete_experiment')
     request_message = _get_request_message(
         DeleteExperiment(), schema={"experiment_id": [_assert_required, _assert_string]}
     )
@@ -689,6 +694,7 @@ def _delete_experiment():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _restore_experiment():
+    print('_restore_experiment')
     request_message = _get_request_message(
         RestoreExperiment(), schema={"experiment_id": [_assert_required, _assert_string]}
     )
@@ -702,6 +708,7 @@ def _restore_experiment():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _update_experiment():
+    print('_update_experiment')
     request_message = _get_request_message(
         UpdateExperiment(),
         schema={
@@ -722,6 +729,7 @@ def _update_experiment():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _create_run():
+    print('_create_run')
     request_message = _get_request_message(
         CreateRun(),
         schema={
@@ -750,6 +758,7 @@ def _create_run():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _update_run():
+    print('_update_run')
     request_message = _get_request_message(
         UpdateRun(),
         schema={
@@ -773,6 +782,7 @@ def _update_run():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_run():
+    print('_delete_run')
     request_message = _get_request_message(
         DeleteRun(), schema={"run_id": [_assert_required, _assert_string]}
     )
@@ -786,6 +796,7 @@ def _delete_run():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _restore_run():
+    print('_restore_run')
     request_message = _get_request_message(
         RestoreRun(), schema={"run_id": [_assert_required, _assert_string]}
     )
@@ -799,6 +810,7 @@ def _restore_run():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _log_metric():
+    print('_log_metric')
     request_message = _get_request_message(
         LogMetric(),
         schema={
@@ -823,6 +835,7 @@ def _log_metric():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _log_param():
+    print('_log_param')
     request_message = _get_request_message(
         LogParam(),
         schema={
@@ -843,6 +856,7 @@ def _log_param():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _log_inputs():
+    print('_log_inputs')
     request_message = _get_request_message(
         LogInputs(),
         schema={
@@ -866,6 +880,7 @@ def _log_inputs():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _set_experiment_tag():
+    print('_set_experiment_tag')
     request_message = _get_request_message(
         SetExperimentTag(),
         schema={
@@ -885,6 +900,7 @@ def _set_experiment_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _set_tag():
+    print('_set_tag')
     request_message = _get_request_message(
         SetTag(),
         schema={
@@ -905,6 +921,7 @@ def _set_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_tag():
+    print('_delete_tag')
     request_message = _get_request_message(
         DeleteTag(),
         schema={
@@ -932,6 +949,7 @@ def _get_run():
 
 
 def get_run_impl(request_message):
+    print('get_run_impl')
     response_message = GetRun.Response()
     run_id = request_message.run_id or request_message.run_uuid
     response_message.run.MergeFrom(_get_tracking_store().get_run(run_id).to_proto())
@@ -941,6 +959,7 @@ def get_run_impl(request_message):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _search_runs():
+    print('_search_runs')
     request_message = _get_request_message(
         SearchRuns(),
         schema={
@@ -973,6 +992,7 @@ def _search_runs():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _list_artifacts():
+    print('_list_artifacts')
     request_message = _get_request_message(
         ListArtifacts(),
         schema={
@@ -1044,6 +1064,7 @@ def _list_artifacts_for_proxied_run_artifact_root(proxied_artifact_root, relativ
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_metric_history():
+    print('_get_metric_history')
     request_message = _get_request_message(
         GetMetricHistory(),
         schema={
@@ -1063,6 +1084,7 @@ def _get_metric_history():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def get_metric_history_bulk_handler():
+    print('get_metric_history_bulk_handler')
     MAX_HISTORY_RESULTS = 25000
     MAX_RUN_IDS_PER_REQUEST = 100
     run_ids = request.args.to_dict(flat=False).get("run_id", [])
@@ -1151,6 +1173,7 @@ def _get_sampled_steps_from_steps(start_step, end_step, max_results):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def get_metric_history_bulk_interval_handler():
+    print('get_metric_history_bulk_interval_handler')
     MAX_RUNS_GET_METRIC_HISTORY_BULK = 100
     MAX_RESULTS_PER_RUN = 2500
     MAX_RESULTS_GET_METRIC_HISTORY = 25000
@@ -1312,6 +1335,7 @@ def gateway_proxy_handler():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def create_promptlab_run_handler():
+    print('create_promptlab_run_handler')
     def assert_arg_exists(arg_name, arg):
         if not arg:
             raise MlflowException(
@@ -1380,6 +1404,7 @@ def create_promptlab_run_handler():
 
 @catch_mlflow_exception
 def upload_artifact_handler():
+    print('upload_artifact_handler')
     args = request.args
     run_uuid = args.get("run_uuid")
     if not run_uuid:
@@ -1445,6 +1470,7 @@ def upload_artifact_handler():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _search_experiments():
+    print('_search_experiments')
     request_message = _get_request_message(
         SearchExperiments(),
         schema={
@@ -1479,6 +1505,7 @@ def _get_artifact_repo(run):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _log_batch():
+    print('_log_batch')
     def _assert_metrics_fields_present(metrics):
         for m in metrics:
             _assert_required(m.get("key"))
@@ -1514,6 +1541,7 @@ def _log_batch():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _log_model():
+    print('_log_model')
     request_message = _get_request_message(
         LogModel(),
         schema={
@@ -1745,6 +1773,7 @@ def _validate_non_local_source_contains_relative_paths(source: str):
 
 
 def _validate_source(source: str, run_id: str) -> None:
+    print('_validate_source')
     if is_local_uri(source):
         if run_id:
             store = _get_tracking_store()

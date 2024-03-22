@@ -200,6 +200,7 @@ def _get_permission_from_experiment_id_artifact_proxy() -> Permission:
 
 
 def _get_permission_from_experiment_name() -> Permission:
+    print('_get_permission_from_experiment_name')
     experiment_name = _get_request_param("experiment_name")
     store_exp = _get_tracking_store().get_experiment_by_name(experiment_name)
     if store_exp is None:
@@ -214,6 +215,7 @@ def _get_permission_from_experiment_name() -> Permission:
 
 
 def _get_permission_from_run_id() -> Permission:
+    print('_get_permission_from_run_id')
     # run permissions inherit from parent resource (experiment)
     # so we just get the experiment permission
     run_id = _get_request_param("run_id")
