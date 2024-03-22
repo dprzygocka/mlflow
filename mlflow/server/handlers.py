@@ -329,10 +329,12 @@ def initialize_backend_stores(
     print(SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
     print('backend_store_uri')
     print(backend_store_uri)
-    if "duckdb" in backend_store_uri:
-        SqlAlchemyStore._db_uri_sql_alchemy_engine_map[backend_store_uri].dispose()
     try:
         _get_model_registry_store(registry_store_uri)
+        if "duckdb" in backend_store_uri:
+            print('here')
+            print( SqlAlchemyStore._db_uri_sql_alchemy_engine_map[backend_store_uri])
+            SqlAlchemyStore._db_uri_sql_alchemy_engine_map[backend_store_uri].dispose()
     except UnsupportedModelRegistryStoreURIException:
         pass
 
