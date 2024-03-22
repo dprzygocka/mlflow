@@ -335,4 +335,4 @@ def create_sqlalchemy_engine(db_uri):
     print("db_uri", db_uri)
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
-    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
