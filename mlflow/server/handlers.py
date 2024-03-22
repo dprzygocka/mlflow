@@ -93,6 +93,7 @@ from mlflow.server.validation import _validate_content_type
 from mlflow.store.artifact.artifact_repo import MultipartUploadMixin
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from mlflow.store.db.db_types import DATABASE_ENGINES
+from mlflow.store.tracking.sqlalchemy_store import SqlAlchemyStore
 from mlflow.tracking._model_registry import utils as registry_utils
 from mlflow.tracking._model_registry.registry import ModelRegistryStoreRegistry
 from mlflow.tracking._tracking_service import utils
@@ -324,6 +325,12 @@ def initialize_backend_stores(
     print("initialize_backend_stores")
     _get_tracking_store(backend_store_uri, default_artifact_root)
     print("after _get_tracking_store")
+    print('close connection here!!!!!!!!!!!!!!!!!!!')
+    print(SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
+    print('backend_store_uri')
+    print(backend_store_uri)
+    if "duckdb" in backend_store_uri:
+        SqlAlchemyStore._db_uri_sql_alchemy_engine_map[backend_store_uri].dispose()
     try:
         _get_model_registry_store(registry_store_uri)
     except UnsupportedModelRegistryStoreURIException:
