@@ -80,7 +80,6 @@ def log_everything():
 
 
 def connect_to_mlflow_db():
-    print('connect_to_mlflow_db')
     return sa.create_engine(os.environ["MLFLOW_TRACKING_URI"]).connect()
 
 
