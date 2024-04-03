@@ -210,6 +210,23 @@ def _get_alembic_config(db_url, alembic_dir=None):
     print(config)
     return config
 
+import subprocess
+
+def get_duckdb_pid():
+    # Run the command to list DuckDB processes
+    result = subprocess.run(['pgrep', '-f', 'duckdb'], capture_output=True, text=True)
+    
+    # Check if the command was successful
+    if result.returncode == 0:
+        # Split the output by lines and get the first PID
+        pids = result.stdout.strip().split('\n')
+        if pids:
+            return int(pids[0])  # Return the first PID found
+    else:
+        print("Error:", result.stderr)
+    
+    return None
+
 
 def _upgrade_db(engine):
     """
@@ -248,6 +265,13 @@ def _upgrade_db(engine):
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
+        # Get the DuckDB PID
+        duckdb_pid = get_duckdb_pid()
+        print("DuckDB PID:", duckdb_pid)
+    # Get the DuckDB PID
+    duckdb_pid = get_duckdb_pid()
+    print("DuckDB PID:", duckdb_pid)
+
 
 def _get_schema_version(engine):
     from alembic.ddl.impl import DefaultImpl
@@ -336,5 +360,4 @@ def create_sqlalchemy_engine(db_uri):
     print("db_uri", db_uri)
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
-    connect_args={'read_only': True,}
-    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, poolclass=NullPool, **connect_args)
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
