@@ -170,6 +170,7 @@ _model_registry_store_registry = ModelRegistryStoreRegistryWrapper()
 
 
 def _get_artifact_repo_mlflow_artifacts():
+    print('_get_artifact_repo_mlflow_artifacts')
     """
     Get an artifact repository specified by ``--artifacts-destination`` option for ``mlflow server``
     command.
@@ -183,6 +184,7 @@ def _get_artifact_repo_mlflow_artifacts():
 
 
 def _is_serving_proxied_artifacts():
+    print('_is_serving_proxied_artifacts')
     """
     Returns:
         True if the MLflow server is serving proxied artifacts (i.e. acting as a proxy for
@@ -195,6 +197,7 @@ def _is_serving_proxied_artifacts():
 
 
 def _is_servable_proxied_run_artifact_root(run_artifact_root):
+    print('_is_servable_proxied_run_artifact_root')
     """
     Determines whether or not the following are true:
 
@@ -237,6 +240,7 @@ def _is_servable_proxied_run_artifact_root(run_artifact_root):
 
 
 def _get_proxied_run_artifact_destination_path(proxied_artifact_root, relative_path=None):
+    print('_get_proxied_run_artifact_destination_path')
     """
     Resolves the specified proxied artifact location within a Run to a concrete storage location.
 
@@ -280,7 +284,7 @@ def _get_proxied_run_artifact_destination_path(proxied_artifact_root, relative_p
 
 
 def _get_tracking_store(backend_store_uri=None, default_artifact_root=None):
-    print("_get_tracking_store")
+    print("_get_tracking_store handler")
     from mlflow.server import ARTIFACT_ROOT_ENV_VAR, BACKEND_STORE_URI_ENV_VAR
     print("ARTIFACT_ROOT_ENV_VAR")
     print(ARTIFACT_ROOT_ENV_VAR)
@@ -305,6 +309,7 @@ def _get_tracking_store(backend_store_uri=None, default_artifact_root=None):
 
 
 def _get_model_registry_store(registry_store_uri=None):
+    print('_get_model_registry_store')
     from mlflow.server import BACKEND_STORE_URI_ENV_VAR, REGISTRY_STORE_URI_ENV_VAR
 
     global _model_registry_store
@@ -336,10 +341,12 @@ def initialize_backend_stores(
 
 
 def _assert_string(x):
+    print('_assert_string')
     assert isinstance(x, str)
 
 
 def _assert_intlike(x):
+    print('_assert_intlike')
     try:
         x = int(x)
     except ValueError:
@@ -349,10 +356,12 @@ def _assert_intlike(x):
 
 
 def _assert_bool(x):
+    print('_assert_bool')
     assert isinstance(x, bool)
 
 
 def _assert_floatlike(x):
+    print('_assert_floatlike')
     try:
         x = float(x)
     except ValueError:
@@ -362,10 +371,12 @@ def _assert_floatlike(x):
 
 
 def _assert_array(x):
+    print('_assert_floatlike')
     assert isinstance(x, list)
 
 
 def _assert_required(x):
+    print('_assert_required')
     assert x is not None
     # When parsing JSON payloads via proto, absent string fields
     # are expressed as empty strings
@@ -373,16 +384,19 @@ def _assert_required(x):
 
 
 def _assert_less_than_or_equal(x, max_value, message=None):
+    print('_assert_less_than_or_equal')
     if x > max_value:
         raise AssertionError(message) if message else AssertionError()
 
 
 def _assert_intlike_within_range(x, min_value, max_value, message=None):
+    print('_assert_intlike_within_range')
     if not min_value <= x <= max_value:
         raise AssertionError(message) if message else AssertionError()
 
 
 def _assert_item_type_string(x):
+    print('_assert_item_type_string')
     assert all(isinstance(item, str) for item in x)
 
 
@@ -397,6 +411,7 @@ _TYPE_VALIDATORS = {
 
 
 def _validate_param_against_schema(schema, param, value, proto_parsing_succeeded=False):
+    print('_validate_param_against_schema')
     """
     Attempts to validate a single parameter against a specified schema. Examples of the elements of
     the schema are type assertions and checks for required parameters. Returns None on validation
@@ -441,11 +456,13 @@ def _validate_param_against_schema(schema, param, value, proto_parsing_succeeded
 
 
 def _get_request_json(flask_request=request):
+    print('_get_request_json')
     _validate_content_type(flask_request, ["application/json"])
     return flask_request.get_json(force=True, silent=True)
 
 
 def _get_request_message(request_message, flask_request=request, schema=None):
+    print('_get_request_message')
     from querystring_parser import parser
 
     if flask_request.method == "GET" and len(flask_request.query_string) > 0:
@@ -508,6 +525,7 @@ def _get_request_message(request_message, flask_request=request, schema=None):
 
 
 def _response_with_file_attachment_headers(file_path, response):
+    print('_response_with_file_attachment_headers')
     mime_type = _guess_mime_type(file_path)
     filename = pathlib.Path(file_path).name
     response.mimetype = mime_type
@@ -520,6 +538,7 @@ def _response_with_file_attachment_headers(file_path, response):
 
 
 def _send_artifact(artifact_repository, path):
+    print('_send_artifact')
     file_path = os.path.abspath(artifact_repository.download_artifacts(path))
     # Always send artifacts as attachments to prevent the browser from displaying them on our web
     # server's domain, which might enable XSS.
@@ -529,6 +548,7 @@ def _send_artifact(artifact_repository, path):
 
 
 def catch_mlflow_exception(func):
+    print('catch_mlflow_exception')
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -543,6 +563,7 @@ def catch_mlflow_exception(func):
 
 
 def _disable_unless_serve_artifacts(func):
+    print('_disable_unless_serve_artifacts')
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not _is_serving_proxied_artifacts():
@@ -560,6 +581,7 @@ def _disable_unless_serve_artifacts(func):
 
 
 def _disable_if_artifacts_only(func):
+    print('_disable_if_artifacts_only')
     @wraps(func)
     def wrapper(*args, **kwargs):
         from mlflow.server import ARTIFACTS_ONLY_ENV_VAR
@@ -604,6 +626,7 @@ def get_artifact_handler():
 
 
 def _not_implemented():
+    print('_not_implemented')
     response = Response()
     response.status_code = 404
     return response
@@ -644,6 +667,7 @@ def _create_experiment():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_experiment():
+    print('_get_experiment')
     request_message = _get_request_message(
         GetExperiment(), schema={"experiment_id": [_assert_required, _assert_string]}
     )
@@ -944,6 +968,7 @@ def _delete_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_run():
+    print('_get_run')
     request_message = _get_request_message(
         GetRun(), schema={"run_id": [_assert_required, _assert_string]}
     )
@@ -1036,6 +1061,7 @@ def _list_artifacts():
 
 @catch_mlflow_exception
 def _list_artifacts_for_proxied_run_artifact_root(proxied_artifact_root, relative_path=None):
+    print('_list_artifacts_for_proxied_run_artifact_root')
     """
     Lists artifacts from the specified ``relative_path`` within the specified proxied Run artifact
     root (i.e. a Run artifact root with scheme ``http``, ``https``, or ``mlflow-artifacts``).
@@ -1166,6 +1192,7 @@ def get_metric_history_bulk_handler():
 
 
 def _get_sampled_steps_from_steps(start_step, end_step, max_results):
+    print('_get_sampled_steps_from_steps')
     num_steps = end_step - start_step + 1
     interval = num_steps / max_results
     grouped_steps = {}
@@ -1313,6 +1340,7 @@ def search_datasets_handler():
 
 @catch_mlflow_exception
 def gateway_proxy_handler():
+    print('gateway_proxy_handler')
     target_uri = MLFLOW_DEPLOYMENTS_TARGET.get()
     if not target_uri:
         # Pretend an empty gateway service is running
@@ -1594,6 +1622,7 @@ def _wrap_response(response_message):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _create_registered_model():
+    print('_create_registered_model')
     request_message = _get_request_message(
         CreateRegisteredModel(),
         schema={
@@ -1614,6 +1643,7 @@ def _create_registered_model():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_registered_model():
+    print('_get_registered_model')
     request_message = _get_request_message(
         GetRegisteredModel(), schema={"name": [_assert_string, _assert_required]}
     )
@@ -1625,6 +1655,7 @@ def _get_registered_model():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _update_registered_model():
+    print('_update_registered_model')
     request_message = _get_request_message(
         UpdateRegisteredModel(),
         schema={"name": [_assert_string, _assert_required], "description": [_assert_string]},
@@ -1641,6 +1672,7 @@ def _update_registered_model():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _rename_registered_model():
+    print('_rename_registered_model')
     request_message = _get_request_message(
         RenameRegisteredModel(),
         schema={
@@ -1660,6 +1692,7 @@ def _rename_registered_model():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_registered_model():
+    print('_delete_registered_model')
     request_message = _get_request_message(
         DeleteRegisteredModel(), schema={"name": [_assert_string, _assert_required]}
     )
@@ -1670,6 +1703,7 @@ def _delete_registered_model():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _search_registered_models():
+    print('_search_registered_models')
     request_message = _get_request_message(
         SearchRegisteredModels(),
         schema={
@@ -1696,6 +1730,7 @@ def _search_registered_models():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_latest_versions():
+    print('_get_latest_versions')
     request_message = _get_request_message(
         GetLatestVersions(),
         schema={
@@ -1714,6 +1749,7 @@ def _get_latest_versions():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _set_registered_model_tag():
+    print('_set_registered_model_tag')
     request_message = _get_request_message(
         SetRegisteredModelTag(),
         schema={
@@ -1730,6 +1766,7 @@ def _set_registered_model_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_registered_model_tag():
+    print('_delete_registered_model_tag')
     request_message = _get_request_message(
         DeleteRegisteredModelTag(),
         schema={
@@ -1744,6 +1781,7 @@ def _delete_registered_model_tag():
 
 
 def _validate_non_local_source_contains_relative_paths(source: str):
+    print('_validate_non_local_source_contains_relative_paths')
     """
     Validation check to ensure that sources that are provided that conform to the schemes:
     http, https, or mlflow-artifacts do not contain relative path designations that are intended
@@ -1807,6 +1845,7 @@ def _validate_source(source: str, run_id: str) -> None:
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _create_model_version():
+    print('_create_model_version')
     request_message = _get_request_message(
         CreateModelVersion(),
         schema={
@@ -1836,6 +1875,7 @@ def _create_model_version():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def get_model_version_artifact_handler():
+    print('get_model_version_artifact_handler')
     from querystring_parser import parser
 
     query_string = request.query_string.decode("utf-8")
@@ -1861,6 +1901,7 @@ def get_model_version_artifact_handler():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_model_version():
+    print('_get_model_version')
     request_message = _get_request_message(
         GetModelVersion(),
         schema={
@@ -1879,6 +1920,7 @@ def _get_model_version():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _update_model_version():
+    print('_update_model_version')
     request_message = _get_request_message(
         UpdateModelVersion(),
         schema={
@@ -1899,6 +1941,7 @@ def _update_model_version():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _transition_stage():
+    print('_transition_stage')
     request_message = _get_request_message(
         TransitionModelVersionStage(),
         schema={
@@ -1922,6 +1965,7 @@ def _transition_stage():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_model_version():
+    print('_delete_model_version')
     request_message = _get_request_message(
         DeleteModelVersion(),
         schema={
@@ -1938,6 +1982,7 @@ def _delete_model_version():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_model_version_download_uri():
+    print('_get_model_version_download_uri')
     request_message = _get_request_message(GetModelVersionDownloadUri())
     download_uri = _get_model_registry_store().get_model_version_download_uri(
         name=request_message.name, version=request_message.version
@@ -1949,6 +1994,7 @@ def _get_model_version_download_uri():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _search_model_versions():
+    print('_search_model_versions')
     request_message = _get_request_message(
         SearchModelVersions(),
         schema={
@@ -1963,6 +2009,7 @@ def _search_model_versions():
 
 
 def search_model_versions_impl(request_message):
+    print('search_model_versions_impl')
     store = _get_model_registry_store()
     model_versions = store.search_model_versions(
         filter_string=request_message.filter,
@@ -1980,6 +2027,7 @@ def search_model_versions_impl(request_message):
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _set_model_version_tag():
+    print('_set_model_version_tag')
     request_message = _get_request_message(
         SetModelVersionTag(),
         schema={
@@ -1999,6 +2047,7 @@ def _set_model_version_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_model_version_tag():
+    print('_delete_model_version_tag')
     request_message = _get_request_message(
         DeleteModelVersionTag(),
         schema={
@@ -2016,6 +2065,7 @@ def _delete_model_version_tag():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _set_registered_model_alias():
+    print('_set_registered_model_alias')
     request_message = _get_request_message(
         SetRegisteredModelAlias(),
         schema={
@@ -2033,6 +2083,7 @@ def _set_registered_model_alias():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _delete_registered_model_alias():
+    print('_delete_registered_model_alias')
     request_message = _get_request_message(
         DeleteRegisteredModelAlias(),
         schema={
@@ -2049,6 +2100,7 @@ def _delete_registered_model_alias():
 @catch_mlflow_exception
 @_disable_if_artifacts_only
 def _get_model_version_by_alias():
+    print('_get_model_version_by_alias')
     request_message = _get_request_message(
         GetModelVersionByAlias(),
         schema={
@@ -2070,6 +2122,7 @@ def _get_model_version_by_alias():
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _download_artifact(artifact_path):
+    print('_download_artifact')
     """
     A request handler for `GET /mlflow-artifacts/artifacts/<artifact_path>` to download an artifact
     from `artifact_path` (a relative path from the root artifact directory).
@@ -2095,6 +2148,7 @@ def _download_artifact(artifact_path):
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _upload_artifact(artifact_path):
+    print('_upload_artifact')
     """
     A request handler for `PUT /mlflow-artifacts/artifacts/<artifact_path>` to upload an artifact
     to `artifact_path` (a relative path from the root artifact directory).
@@ -2120,6 +2174,7 @@ def _upload_artifact(artifact_path):
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _list_artifacts_mlflow_artifacts():
+    print('_list_artifacts_mlflow_artifacts')
     """
     A request handler for `GET /mlflow-artifacts/artifacts?path=<value>` to list artifacts in `path`
     (a relative path from the root artifact directory).
@@ -2142,6 +2197,7 @@ def _list_artifacts_mlflow_artifacts():
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _delete_artifact_mlflow_artifacts(artifact_path):
+    print('_delete_artifact_mlflow_artifacts')
     """
     A request handler for `DELETE /mlflow-artifacts/artifacts?path=<value>` to delete artifacts in
     `path` (a relative path from the root artifact directory).
@@ -2158,6 +2214,7 @@ def _delete_artifact_mlflow_artifacts(artifact_path):
 
 @catch_mlflow_exception
 def _graphql():
+    print('_graphql')
     from mlflow.server.graphql.graphql_schema_extensions import schema
 
     # Extracting the query, variables, and operationName from the request
@@ -2180,6 +2237,7 @@ def _graphql():
 
 
 def _validate_support_multipart_upload(artifact_repo):
+    print('_validate_support_multipart_upload')
     if not isinstance(artifact_repo, MultipartUploadMixin):
         raise _UnsupportedMultipartUploadException()
 
@@ -2187,6 +2245,7 @@ def _validate_support_multipart_upload(artifact_repo):
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _create_multipart_upload_artifact(artifact_path):
+    print('_create_multipart_upload_artifact')
     """
     A request handler for `POST /mlflow-artifacts/mpu/create` to create a multipart upload
     to `artifact_path` (a relative path from the root artifact directory).
@@ -2220,6 +2279,7 @@ def _create_multipart_upload_artifact(artifact_path):
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _complete_multipart_upload_artifact(artifact_path):
+    print('_complete_multipart_upload_artifact')
     """
     A request handler for `POST /mlflow-artifacts/mpu/complete` to complete a multipart upload
     to `artifact_path` (a relative path from the root artifact directory).
@@ -2253,6 +2313,7 @@ def _complete_multipart_upload_artifact(artifact_path):
 @catch_mlflow_exception
 @_disable_unless_serve_artifacts
 def _abort_multipart_upload_artifact(artifact_path):
+    print('_abort_multipart_upload_artifact')
     """
     A request handler for `POST /mlflow-artifacts/mpu/abort` to abort a multipart upload
     to `artifact_path` (a relative path from the root artifact directory).
