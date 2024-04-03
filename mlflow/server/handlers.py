@@ -991,6 +991,8 @@ def _search_runs():
         response_message.next_page_token = run_entities.token
     response = Response(mimetype="application/json")
     response.set_data(message_to_json(response_message))
+    print('search response')
+    print(response)
     return response
 
 
