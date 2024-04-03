@@ -266,11 +266,11 @@ def _upgrade_db(engine):
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
         # Get the DuckDB PID
-        duckdb_pid = get_duckdb_pid()
-        print("DuckDB PID:", duckdb_pid)
+        #duckdb_pid = get_duckdb_pid()
+        #print("DuckDB PID:", duckdb_pid)
     # Get the DuckDB PID
-    duckdb_pid = get_duckdb_pid()
-    print("DuckDB PID:", duckdb_pid)
+    #duckdb_pid = get_duckdb_pid()
+    #print("DuckDB PID:", duckdb_pid)
 
 
 def _get_schema_version(engine):
