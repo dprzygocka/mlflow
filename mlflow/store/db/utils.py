@@ -2,7 +2,6 @@ import logging
 import os
 import time
 from contextlib import contextmanager
-import psutil
 
 import sqlalchemy
 from alembic.migration import MigrationContext
