@@ -261,6 +261,7 @@ def _upgrade_db(engine):
     # for reference by the upgrade routine. For more information, see
     # https://alembic.sqlalchemy.org/en/latest/cookbook.html#sharing-a-
     # connection-with-a-series-of-migration-commands-and-environments
+    print('upgrade db begin connection')
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
@@ -270,6 +271,7 @@ def _upgrade_db(engine):
     # Get the DuckDB PID
     #duckdb_pid = get_duckdb_pid()
     #print("DuckDB PID:", duckdb_pid)
+    engine.dispose()
 
 
 def _get_schema_version(engine):
@@ -360,4 +362,4 @@ def create_sqlalchemy_engine(db_uri):
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
     #connect_args={'read_only': True,}
-    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)

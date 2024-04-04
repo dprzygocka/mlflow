@@ -23,15 +23,18 @@ def _get_alembic_config(url: str) -> Config:
 
 def migrate(engine: Engine, revision: str) -> None:
     alembic_cfg = _get_alembic_config(engine.url.render_as_string(hide_password=False))
+    print('migrate begin connection')
     with engine.begin() as conn:
         alembic_cfg.attributes["connection"] = conn
         upgrade(alembic_cfg, revision)
-
+    engine.dispose()
 
 def migrate_if_needed(engine: Engine, revision: str) -> None:
     alembic_cfg = _get_alembic_config(engine.url.render_as_string(hide_password=False))
     script_dir = ScriptDirectory.from_config(alembic_cfg)
+    print('migrate_if_needed begin connection')
     with engine.begin() as conn:
         context = MigrationContext.configure(conn)
         if context.get_current_revision() != script_dir.get_current_head():
             upgrade(alembic_cfg, revision)
+    engine.dispose()
