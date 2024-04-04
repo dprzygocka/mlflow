@@ -4,6 +4,7 @@ import time
 from contextlib import contextmanager
 
 from duckdb import IOException, OperationalError
+from sqlalchemy.exc import OperationalError
 import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
