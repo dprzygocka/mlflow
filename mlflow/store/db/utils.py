@@ -3,6 +3,7 @@ import os
 import time
 from contextlib import contextmanager
 
+from duckdb import IOException, OperationalError
 import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
@@ -384,14 +385,25 @@ def create_sqlalchemy_engine(db_uri):
     print("db_uri", db_uri)
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
-    # Find the DuckDB process
-    duckdb_pid = find_duckdb_process()
-    if duckdb_pid is not None:
-        print("DuckDB process found with PID:", duckdb_pid)
-        # Kill the DuckDB process
-        kill_process(duckdb_pid)
-        print("DuckDB process killed.")
-    else:
-        print("No DuckDB process found.")
+
+    
     #connect_args={'read_only': True,}
+    while True:
+        try:
+            # Attempt to create SQLAlchemy engine
+            engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+            return engine
+        except (OperationalError, IOException) as e:
+            print("Error:", e)
+            duckdb_pid = find_duckdb_process()
+            if duckdb_pid is not None:
+                print("DuckDB process found with PID:", duckdb_pid)
+                # Kill the DuckDB process
+                kill_process(duckdb_pid)
+                print("DuckDB process killed.")
+            else:
+                print("No DuckDB process found.")
+            retry = input("Retry? (y/n): ").strip().lower()
+            if retry != 'y':
+                break
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
