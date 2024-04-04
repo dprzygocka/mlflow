@@ -393,8 +393,10 @@ def create_sqlalchemy_engine(db_uri):
         try:
             # Attempt to create SQLAlchemy engine
             engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+            print('engine object')
+            print(engine)
             return engine
-        except (OperationalError, IOException) as e:
+        except Exception as e:
             print("Error:", e)
             duckdb_pid = find_duckdb_process()
             if duckdb_pid is not None:
