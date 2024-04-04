@@ -315,6 +315,29 @@ def create_sqlalchemy_engine_with_retry(db_uri):
             raise
 
 
+import subprocess
+
+def find_duckdb_process():
+    # Execute the lsof command to find processes using the DuckDB file
+    result = subprocess.run(['lsof', './testA.db'], capture_output=True, text=True)
+    
+    # Check if the command was successful
+    if result.returncode == 0:
+        # Split the output by lines and extract the PID from the first line
+        lines = result.stdout.strip().split('\n')
+        if lines:
+            pid = lines[1].split()[1]  # Second column of the second line contains the PID
+            return int(pid)
+    else:
+        print("Error:", result.stderr)
+    
+    return None
+
+def kill_process(pid):
+    # Execute the kill command to terminate the process
+    subprocess.run(['kill', str(pid)])
+
+
 def create_sqlalchemy_engine(db_uri):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
     pool_max_overflow = MLFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW.get()
@@ -361,5 +384,14 @@ def create_sqlalchemy_engine(db_uri):
     print("db_uri", db_uri)
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
+    # Find the DuckDB process
+    duckdb_pid = find_duckdb_process()
+    if duckdb_pid is not None:
+        print("DuckDB process found with PID:", duckdb_pid)
+        # Kill the DuckDB process
+        kill_process(duckdb_pid)
+        print("DuckDB process killed.")
+    else:
+        print("No DuckDB process found.")
     #connect_args={'read_only': True,}
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
