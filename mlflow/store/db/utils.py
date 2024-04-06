@@ -2,6 +2,7 @@ global_var = False
 
 import logging
 import os
+import socket
 import time
 from contextlib import contextmanager
 
@@ -346,6 +347,22 @@ def kill_process(pid):
     # Execute the kill command to terminate the process
     subprocess.run(['kill', str(pid)])
 
+def is_port_in_use(port):
+    # Create a socket object
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Set a timeout for the connection attempt (optional)
+    sock.settimeout(1)
+    try:
+        # Try to connect to the port
+        sock.connect(('localhost', port))
+        # If connection succeeds, the port is in use
+        return True
+    except ConnectionRefusedError:
+        # If connection is refused, the port is not in use
+        return False
+    finally:
+        # Close the socket
+        sock.close()
 
 def create_sqlalchemy_engine(db_uri, method = None):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
@@ -408,7 +425,7 @@ def create_sqlalchemy_engine(db_uri, method = None):
     print('global_var')
     print(global_var)
 
-    if global_var:
+    if is_port_in_use(5000):
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
             print("DuckDB process found with PID:", duckdb_pid)
