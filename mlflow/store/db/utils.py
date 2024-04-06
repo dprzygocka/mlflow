@@ -424,7 +424,8 @@ def create_sqlalchemy_engine(db_uri, method = None):
 
     print('global_var')
     print(global_var)
-    if is_port_in_use(5000):
+    free = is_port_in_use(5000)
+    if not free:
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
             print("DuckDB process found with PID:", duckdb_pid)
