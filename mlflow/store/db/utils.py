@@ -212,23 +212,6 @@ def _get_alembic_config(db_url, alembic_dir=None):
     print(config)
     return config
 
-import subprocess
-
-def get_duckdb_pid():
-    # Run the command to list DuckDB processes
-    result = subprocess.run(['pgrep', '-f', 'duckdb'], capture_output=True, text=True)
-    
-    # Check if the command was successful
-    if result.returncode == 0:
-        # Split the output by lines and get the first PID
-        pids = result.stdout.strip().split('\n')
-        if pids:
-            return int(pids[0])  # Return the first PID found
-    else:
-        print("Error:", result.stderr)
-    
-    return None
-
 
 def _upgrade_db(engine):
     """
