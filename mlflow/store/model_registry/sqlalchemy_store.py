@@ -92,6 +92,7 @@ class SqlAlchemyStore(AbstractStore):
         super().__init__()
         self.db_uri = db_uri
         self.db_type = extract_db_type_from_uri(db_uri)
+        print('sql alchemy store create sqlalchemy engine with retry')
         self.engine = mlflow.store.db.utils.create_sqlalchemy_engine_with_retry(db_uri)
         if not mlflow.store.db.utils._all_tables_exist(self.engine):
             mlflow.store.db.utils._initialize_tables(self.engine)

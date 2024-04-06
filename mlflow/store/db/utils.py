@@ -292,12 +292,12 @@ def _get_schema_version(engine):
         return mc.get_current_revision()
 
 
-def create_sqlalchemy_engine_with_retry(db_uri, method = None):
+def create_sqlalchemy_engine_with_retry(db_uri):
     attempts = 0
     while True:
         attempts += 1
         print("create_sqlalchemy_engine_with_retry")
-        engine = create_sqlalchemy_engine(db_uri, method)
+        engine = create_sqlalchemy_engine(db_uri)
         print(engine)
         try:
             sqlalchemy.inspect(engine)
@@ -319,9 +319,14 @@ def create_sqlalchemy_engine_with_retry(db_uri, method = None):
 
 import subprocess
 
-def find_duckdb_process():
+def find_duckdb_process(file_name):
     # Execute the lsof command to find processes using the DuckDB file
-    result = subprocess.run(['lsof', './testA.db'], capture_output=True, text=True)
+    print('before result')
+    try:
+        result = subprocess.run(['lsof', f'./{file_name}'], capture_output=True, text=True)
+    except Exception as e:
+        return None
+    print(result)
     
     # Check if the command was successful
     if result.returncode == 0:
@@ -387,13 +392,19 @@ def create_sqlalchemy_engine(db_uri, method = None):
     print('ask sql alchemy to create engine based on uri')
     print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
 
-    
+    import re
     #connect_args={'read_only': True,}
     print('method try')
-    print(method)
+    pattern = r'[^/]+$'
+    match = re.search(pattern, db_uri)
+    print(db_uri)
+    print(match.group(0))
+    file_name = match.group(0)
+    print('find file')
+    print(os.path.exists(f'./{match.group(0)}'))
 
-    if method is None:
-        duckdb_pid = find_duckdb_process()
+    if os.path.exists(f'./{file_name}'):
+        duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
             print("DuckDB process found with PID:", duckdb_pid)
             # Kill the DuckDB process
