@@ -405,6 +405,9 @@ def create_sqlalchemy_engine(db_uri, method = None):
     print('find file')
     print(os.path.exists(f'./{match.group(0)}'))
 
+    print('global_var')
+    print(global_var)
+
     if global_var:
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:

@@ -892,7 +892,6 @@ def create_app(app: Flask = app):
     # secret key required for flashing
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
-    print('init_db')
     store.init_db(auth_config.database_uri)
     create_admin_user(auth_config.admin_username, auth_config.admin_password)
 
