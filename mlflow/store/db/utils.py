@@ -292,12 +292,12 @@ def _get_schema_version(engine):
         return mc.get_current_revision()
 
 
-def create_sqlalchemy_engine_with_retry(db_uri):
+def create_sqlalchemy_engine_with_retry(db_uri, method = None):
     attempts = 0
     while True:
         attempts += 1
         print("create_sqlalchemy_engine_with_retry")
-        engine = create_sqlalchemy_engine(db_uri)
+        engine = create_sqlalchemy_engine(db_uri, method)
         print(engine)
         try:
             sqlalchemy.inspect(engine)
@@ -340,7 +340,7 @@ def kill_process(pid):
     subprocess.run(['kill', str(pid)])
 
 
-def create_sqlalchemy_engine(db_uri):
+def create_sqlalchemy_engine(db_uri, method = None):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
     pool_max_overflow = MLFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW.get()
     pool_recycle = MLFLOW_SQLALCHEMYSTORE_POOL_RECYCLE.get()
@@ -389,24 +389,20 @@ def create_sqlalchemy_engine(db_uri):
 
     
     #connect_args={'read_only': True,}
-    while True:
-        try:
-            # Attempt to create SQLAlchemy engine
-            engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
-            print('engine object')
-            print(engine)
-            return engine
-        except Exception as e:
-            print("Error:", e)
-            duckdb_pid = find_duckdb_process()
-            if duckdb_pid is not None:
-                print("DuckDB process found with PID:", duckdb_pid)
-                # Kill the DuckDB process
-                kill_process(duckdb_pid)
-                print("DuckDB process killed.")
-            else:
-                print("No DuckDB process found.")
-            retry = input("Retry? (y/n): ").strip().lower()
-            if retry != 'y':
-                break
-    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+    print('method try')
+    print(method)
+
+    if method is None:
+        duckdb_pid = find_duckdb_process()
+        if duckdb_pid is not None:
+            print("DuckDB process found with PID:", duckdb_pid)
+            # Kill the DuckDB process
+            kill_process(duckdb_pid)
+            print("DuckDB process killed.")
+        else:
+            print("No DuckDB process found.")
+    # Attempt to create SQLAlchemy engine
+    engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+    print('engine object')
+    print(engine)
+    return engine

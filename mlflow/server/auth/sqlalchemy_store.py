@@ -27,7 +27,7 @@ class SqlAlchemyStore:
     def init_db(self, db_uri):
         self.db_uri = db_uri
         self.db_type = extract_db_type_from_uri(db_uri)
-        self.engine = create_sqlalchemy_engine_with_retry(db_uri)
+        self.engine = create_sqlalchemy_engine_with_retry(db_uri, 'init_db')
         dbutils.migrate_if_needed(self.engine, "head")
         SessionMaker = sessionmaker(bind=self.engine)
         self.ManagedSessionMaker = _get_managed_session_maker(SessionMaker, self.db_type)
