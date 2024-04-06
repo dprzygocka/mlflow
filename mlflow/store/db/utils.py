@@ -1,3 +1,5 @@
+global_var = False
+
 import logging
 import os
 import time
@@ -403,7 +405,7 @@ def create_sqlalchemy_engine(db_uri, method = None):
     print('find file')
     print(os.path.exists(f'./{match.group(0)}'))
 
-    if os.path.exists(f'./{file_name}'):
+    if global_var:
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
             print("DuckDB process found with PID:", duckdb_pid)

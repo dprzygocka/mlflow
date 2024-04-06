@@ -289,4 +289,6 @@ def _run_server(
         full_command = _build_waitress_command(waitress_opts, host, port, app, is_factory)
     else:
         full_command = _build_gunicorn_command(gunicorn_opts, host, port, workers or 4, app)
+    global global_var
+    global_var = True
     _exec_cmd(full_command, extra_env=env_map, capture_output=False)
