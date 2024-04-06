@@ -347,22 +347,16 @@ def kill_process(pid):
     # Execute the kill command to terminate the process
     subprocess.run(['kill', str(pid)])
 
-def is_port_in_use(port):
-    # Create a socket object
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Set a timeout for the connection attempt (optional)
-    sock.settimeout(1)
-    try:
-        # Try to connect to the port
-        sock.connect(('localhost', port))
-        # If connection succeeds, the port is in use
-        return True
-    except ConnectionRefusedError:
-        # If connection is refused, the port is not in use
+def is_port_in_use():
+     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(('localhost', 5000))
+        except OSError as e:
+            if e.errno == 98:  # Error number 98: Address already in use
+                return True
+            else:
+                raise
         return False
-    finally:
-        # Close the socket
-        sock.close()
 
 def create_sqlalchemy_engine(db_uri, method = None):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
@@ -424,8 +418,10 @@ def create_sqlalchemy_engine(db_uri, method = None):
 
     print('global_var')
     print(global_var)
-    free = is_port_in_use(5000)
-    if not free:
+    free = is_port_in_use()
+    print('port 5000 search')
+    print(free)
+    if free:
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
             print("DuckDB process found with PID:", duckdb_pid)
@@ -434,10 +430,6 @@ def create_sqlalchemy_engine(db_uri, method = None):
             print("DuckDB process killed.")
         else:
             print("No DuckDB process found.")
-        engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
+        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
     else:
-        engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
-    # Attempt to create SQLAlchemy engine
-    print('engine object')
-    print(engine)
-    return engine
+        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
