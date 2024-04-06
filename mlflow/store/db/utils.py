@@ -424,7 +424,6 @@ def create_sqlalchemy_engine(db_uri, method = None):
 
     print('global_var')
     print(global_var)
-
     if is_port_in_use(5000):
         duckdb_pid = find_duckdb_process(file_name)
         if duckdb_pid is not None:
@@ -434,8 +433,10 @@ def create_sqlalchemy_engine(db_uri, method = None):
             print("DuckDB process killed.")
         else:
             print("No DuckDB process found.")
+        engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs, connect_args={'read_only': True,})
+    else:
+        engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
     # Attempt to create SQLAlchemy engine
-    engine = sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
     print('engine object')
     print(engine)
     return engine
