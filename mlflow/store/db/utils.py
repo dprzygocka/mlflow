@@ -270,13 +270,6 @@ def _upgrade_db(engine):
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
-        # Get the DuckDB PID
-        #duckdb_pid = get_duckdb_pid()
-        #print("DuckDB PID:", duckdb_pid)
-    # Get the DuckDB PID
-    #duckdb_pid = get_duckdb_pid()
-    #print("DuckDB PID:", duckdb_pid)
-    engine.dispose()
 
 
 def _get_schema_version(engine):
