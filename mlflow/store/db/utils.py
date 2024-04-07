@@ -352,7 +352,7 @@ def is_port_in_use():
         try:
             s.bind(('localhost', 5000))
         except OSError as e:
-            if e.errno == 98:  # Error number 98: Address already in use
+            if e.errno == 48:  # Error number 98: Address already in use
                 return True
             else:
                 raise

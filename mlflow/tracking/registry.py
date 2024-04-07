@@ -46,9 +46,14 @@ class StoreRegistry:
         self.group_name = group_name
 
     def register(self, scheme, store_builder):
+        print("Register registry.py")
+        print(self._registry[scheme])
+        print("store_builder")
+        print(store_builder)
         self._registry[scheme] = store_builder
 
     def register_entrypoints(self):
+        print("Registry.py register_entrypoints")
         """Register tracking stores provided by other packages"""
         for entrypoint in entrypoints.get_group_all(self.group_name):
             try:
