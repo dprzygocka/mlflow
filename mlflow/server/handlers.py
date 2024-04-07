@@ -125,6 +125,7 @@ class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
             print("self._get_sqlalchemy_store")
             print(self._get_sqlalchemy_store)
             self.register(scheme, self._get_sqlalchemy_store)
+        print("Before self.register_entrypoints")
         self.register_entrypoints()
 
     @classmethod
@@ -549,6 +550,7 @@ def _send_artifact(artifact_repository, path):
 
 def catch_mlflow_exception(func):
     print('catch_mlflow_exception')
+    print(func)
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -1011,9 +1013,13 @@ def _search_runs():
     run_entities = _get_tracking_store().search_runs(
         experiment_ids, filter_string, run_view_type, max_results, order_by, page_token
     )
+    print("Run entities")
+    print(run_entities)
     response_message.runs.extend([r.to_proto() for r in run_entities])
+    print("After response run entities")
     if run_entities.token:
         response_message.next_page_token = run_entities.token
+    print("Before response after token")
     response = Response(mimetype="application/json")
     print('response_message')
     print(response_message)
