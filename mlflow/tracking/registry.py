@@ -47,6 +47,8 @@ class StoreRegistry:
 
     def register(self, scheme, store_builder):
         print("Register registry.py")
+        print('schema')
+        print(scheme)
         print(self._registry)
         print("store_builder")
         print(store_builder)
