@@ -294,43 +294,6 @@ def create_sqlalchemy_engine_with_retry(db_uri):
             raise
 
 
-import subprocess
-
-def find_duckdb_process(file_name):
-    # Execute the lsof command to find processes using the DuckDB file
-    print('before result')
-    try:
-        result = subprocess.run(['lsof', f'./{file_name}'], capture_output=True, text=True)
-    except Exception as e:
-        return None
-    print(result)
-    
-    # Check if the command was successful
-    if result.returncode == 0:
-        # Split the output by lines and extract the PID from the first line
-        lines = result.stdout.strip().split('\n')
-        if lines:
-            pid = lines[1].split()[1]  # Second column of the second line contains the PID
-            return int(pid)
-    else:
-        print("Error:", result.stderr)
-    
-    return None
-
-def kill_process(pid):
-    # Execute the kill command to terminate the process
-    subprocess.run(['kill', str(pid)])
-
-def is_port_in_use():
-     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind(('localhost', 5000))
-        except OSError as e:
-            if e.errno == 98:  # Error number 98: Address already in use
-                return True
-            else:
-                raise
-        return False
 
 def create_sqlalchemy_engine(db_uri, method = None):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
