@@ -1341,6 +1341,8 @@ def search_datasets_handler():
 @catch_mlflow_exception
 def gateway_proxy_handler():
     print('gateway_proxy_handler')
+    print('target_uri')
+    print(MLFLOW_DEPLOYMENTS_TARGET.get())
     target_uri = MLFLOW_DEPLOYMENTS_TARGET.get()
     if not target_uri:
         # Pretend an empty gateway service is running
