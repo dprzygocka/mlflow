@@ -47,18 +47,23 @@ class StoreRegistry:
 
     def register(self, scheme, store_builder):
         print("Register registry.py")
-        print(self._registry[scheme])
+        print(self._registry)
         print("store_builder")
         print(store_builder)
         self._registry[scheme] = store_builder
 
     def register_entrypoints(self):
         print("Registry.py register_entrypoints")
+        print('list of entrypoints')
+        print(entrypoints.get_group_all(self.group_name))
+        print('group name')
+        print(self.group_name)
         """Register tracking stores provided by other packages"""
         for entrypoint in entrypoints.get_group_all(self.group_name):
             try:
                 self.register(entrypoint.name, entrypoint.load())
             except (AttributeError, ImportError) as exc:
+                print('error in registry entrypoints')
                 warnings.warn(
                     'Failure attempting to register store for scheme "{}": {}'.format(
                         entrypoint.name, str(exc)

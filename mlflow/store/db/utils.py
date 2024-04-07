@@ -6,8 +6,6 @@ import socket
 import time
 from contextlib import contextmanager
 
-from duckdb import IOException, OperationalError
-from sqlalchemy.exc import OperationalError
 import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
@@ -214,23 +212,6 @@ def _get_alembic_config(db_url, alembic_dir=None):
     print(config)
     return config
 
-import subprocess
-
-def get_duckdb_pid():
-    # Run the command to list DuckDB processes
-    result = subprocess.run(['pgrep', '-f', 'duckdb'], capture_output=True, text=True)
-    
-    # Check if the command was successful
-    if result.returncode == 0:
-        # Split the output by lines and get the first PID
-        pids = result.stdout.strip().split('\n')
-        if pids:
-            return int(pids[0])  # Return the first PID found
-    else:
-        print("Error:", result.stderr)
-    
-    return None
-
 
 def _upgrade_db(engine):
     """
@@ -270,13 +251,6 @@ def _upgrade_db(engine):
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
-        # Get the DuckDB PID
-        #duckdb_pid = get_duckdb_pid()
-        #print("DuckDB PID:", duckdb_pid)
-    # Get the DuckDB PID
-    #duckdb_pid = get_duckdb_pid()
-    #print("DuckDB PID:", duckdb_pid)
-    engine.dispose()
 
 
 def _get_schema_version(engine):
@@ -352,7 +326,7 @@ def is_port_in_use():
         try:
             s.bind(('localhost', 5000))
         except OSError as e:
-            if e.errno == 48:  # Error number 98: Address already in use
+            if e.errno == 98:  # Error number 98: Address already in use
                 return True
             else:
                 raise

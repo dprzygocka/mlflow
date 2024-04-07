@@ -32,6 +32,7 @@ class DefaultExperimentProviderRegistry:
         self._registry.append(default_experiment_provider_cls())
 
     def register_entrypoints(self):
+        print('defaulkt experiments registry.py')
         """Register tracking stores provided by other packages"""
         for entrypoint in entrypoints.get_group_all("mlflow.default_experiment_provider"):
             try:

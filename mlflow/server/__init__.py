@@ -70,6 +70,7 @@ def version():
 # Serve the "get-artifact" route.
 @app.route(_add_static_prefix("/get-artifact"))
 def serve_artifacts():
+    print('server artifacts')
     return get_artifact_handler()
 
 

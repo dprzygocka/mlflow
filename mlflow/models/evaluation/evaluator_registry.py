@@ -19,6 +19,7 @@ class ModelEvaluatorRegistry:
         self._registry[scheme] = evaluator
 
     def register_entrypoints(self):
+        print('evaluator_ registry')
         # Register ModelEvaluator implementation provided by other packages
         for entrypoint in entrypoints.get_group_all("mlflow.model_evaluator"):
             try:

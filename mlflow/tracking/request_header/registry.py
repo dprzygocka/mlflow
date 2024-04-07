@@ -21,6 +21,7 @@ class RequestHeaderProviderRegistry:
         self._registry.append(request_header_provider())
 
     def register_entrypoints(self):
+        print('request header registry.py')
         """Register tracking stores provided by other packages"""
         for entrypoint in entrypoints.get_group_all("mlflow.request_header_provider"):
             try:

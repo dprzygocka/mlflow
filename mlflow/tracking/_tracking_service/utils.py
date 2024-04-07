@@ -170,6 +170,7 @@ _tracking_store_registry = TrackingStoreRegistry()
 
 
 def _register_tracking_stores():
+    print('_register_tracking_stores')
     global _tracking_store_registry
     _tracking_store_registry.register("", _get_file_store)
     _tracking_store_registry.register("file", _get_file_store)

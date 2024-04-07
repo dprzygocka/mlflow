@@ -125,7 +125,7 @@ class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
             print("self._get_sqlalchemy_store")
             print(self._get_sqlalchemy_store)
             self.register(scheme, self._get_sqlalchemy_store)
-        print("Before self.register_entrypoints")    
+            print("Before self.register_entrypoints")    
         self.register_entrypoints()
 
     @classmethod
@@ -608,19 +608,39 @@ def get_artifact_handler():
     from querystring_parser import parser
 
     query_string = request.query_string.decode("utf-8")
+    print('query_string')
+    print(query_string)
     request_dict = parser.parse(query_string, normalized=True)
+    print('request_dict')
+    print(request_dict)
     run_id = request_dict.get("run_id") or request_dict.get("run_uuid")
+    print('run_id')
+    print(run_id)
     path = request_dict["path"]
+    print('path1')
+    print(path)
     path = validate_path_is_safe(path)
+    print('path2')
+    print(path)
     run = _get_tracking_store().get_run(run_id)
+    print('run')
+    print(run)
+    print('before if statement')
+    print(_is_servable_proxied_run_artifact_root(run.info.artifact_uri))
 
     if _is_servable_proxied_run_artifact_root(run.info.artifact_uri):
+        print('if')
         artifact_repo = _get_artifact_repo_mlflow_artifacts()
+        print('artifact_repo')
+        print(artifact_repo)
         artifact_path = _get_proxied_run_artifact_destination_path(
             proxied_artifact_root=run.info.artifact_uri,
             relative_path=path,
         )
+        print('artifact_path')
+        print(artifact_path)
     else:
+        print('else')
         artifact_repo = _get_artifact_repo(run)
         artifact_path = path
 

@@ -23,6 +23,7 @@ class DatasetSourceRegistry:
         self.sources.append(source)
 
     def register_entrypoints(self):
+        print('dataset_source_registry')
         """
         Registers dataset sources defined as Python entrypoints. For reference, see
         https://mlflow.org/docs/latest/plugins.html#defining-a-plugin.
