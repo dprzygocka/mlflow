@@ -1021,7 +1021,13 @@ def _search_runs():
             "order_by": [_assert_array, _assert_item_type_string],
         },
     )
+    print('SearchRuns()')
+    print(SearchRuns())
+    print('response_message')
+    print(response_message)
     response_message = SearchRuns.Response()
+    print('response_message')
+    print(response_message)
     run_view_type = ViewType.ACTIVE_ONLY
     if request_message.HasField("run_view_type"):
         run_view_type = ViewType.from_proto(request_message.run_view_type)
