@@ -465,6 +465,11 @@ def _get_request_json(flask_request=request):
 def _get_request_message(request_message, flask_request=request, schema=None):
     print('_get_request_message')
     from querystring_parser import parser
+    print('flask_request.method')
+    print(flask_request.method)
+    print('flask_request.query_string')
+    print(flask_request.query_string)
+
 
     if flask_request.method == "GET" and len(flask_request.query_string) > 0:
         # This is a hack to make arrays of length 1 work with the parser.
@@ -473,14 +478,21 @@ def _get_request_message(request_message, flask_request=request, schema=None):
         # but it doesn't. However, experiment_ids%5B0%5D=0 will get parsed to the right
         # result.
         query_string = re.sub("%5B%5D", "%5B0%5D", flask_request.query_string.decode("utf-8"))
+        print('query_string')
+        print(query_string)
         request_dict = parser.parse(query_string, normalized=True)
+        print('request_dict')
+        print(request_dict)
         # Convert atomic values of repeated fields to lists before calling protobuf deserialization.
         # Context: We parse the parameter string into a dictionary outside of protobuf since
         # protobuf does not know how to read the query parameters directly. The query parser above
         # has no type information and hence any parameter that occurs exactly once is parsed as an
         # atomic value. Since protobuf requires that the values of repeated fields are lists,
         # deserialization will fail unless we do the fix below.
+        print('request_message.DESCRIPTOR.fields')
+        print(request_message.DESCRIPTOR.fields)
         for field in request_message.DESCRIPTOR.fields:
+
             if (
                 field.label == descriptor.FieldDescriptor.LABEL_REPEATED
                 and field.name in request_dict
@@ -488,33 +500,70 @@ def _get_request_message(request_message, flask_request=request, schema=None):
                 if not isinstance(request_dict[field.name], list):
                     request_dict[field.name] = [request_dict[field.name]]
         request_json = request_dict
+        print('request_json')
+        print(request_json)
 
     else:
+        print('in else get request message')
+        print('_get_request_json(flask_request)')
         request_json = _get_request_json(flask_request)
+        print('request_json')
+        print(request_json)
 
         # Older clients may post their JSON double-encoded as strings, so the get_json
         # above actually converts it to a string. Therefore, we check this condition
         # (which we can tell for sure because any proper request should be a dictionary),
         # and decode it a second time.
+        print('is_string_type(request_json)')
+        print(is_string_type(request_json))
         if is_string_type(request_json):
+            print('is_string_type(request_json)')
+            print(is_string_type(request_json))
             request_json = json.loads(request_json)
+            print('request_json')
+            print(request_json)
 
         # If request doesn't have json body then assume it's empty.
         if request_json is None:
             request_json = {}
+            print('empty request_json')
 
     proto_parsing_succeeded = True
     try:
+        print('try parse_dict')
+        print('request_json')
+        print(request_json)
+        print('request_message')
+        print(request_message)
         parse_dict(request_json, request_message)
     except ParseError:
         proto_parsing_succeeded = False
-
+    print('proto_parsing_succeeded')
+    print(proto_parsing_succeeded)
     schema = schema or {}
+    print('schema')
+    print(schema)
+    print('schema.items()')
+    print(schema.items())
     for schema_key, schema_validation_fns in schema.items():
+        print('schema_key')
+        print(schema_key)
+        print('schema_validation_fns')
+        print(schema_validation_fns)
+        print('schema_key in request_json')
+        print(schema_key in request_json)
+        print('_assert_required')
+        print(_assert_required in schema_validation_fns)
         if schema_key in request_json or _assert_required in schema_validation_fns:
             value = request_json.get(schema_key)
+            print('value')
+            print(value)
             if schema_key == "run_id" and value is None and "run_uuid" in request_json:
                 value = request_json.get("run_uuid")
+                print(' schema_key == "run_id" and value is None and "run_uuid" in request_json')
+                print('value')
+                print(value)
+            print('_validate_param_against_schema')
             _validate_param_against_schema(
                 schema=schema_validation_fns,
                 param=schema_key,
