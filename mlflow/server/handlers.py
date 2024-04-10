@@ -1070,6 +1070,8 @@ def _search_runs():
             "order_by": [_assert_array, _assert_item_type_string],
         },
     )
+    print('request_message')
+    print(request_message)
     print('SearchRuns()')
     print(SearchRuns())
     print('response_message')
