@@ -1072,8 +1072,6 @@ def _search_runs():
     )
     print('request_message')
     print(request_message)
-    print('response_message')
-    print(response_message)
     response_message = SearchRuns.Response()
     print('response_message')
     print(response_message)
