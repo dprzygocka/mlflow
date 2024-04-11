@@ -392,18 +392,18 @@ def create_sqlalchemy_engine(db_uri, method = None):
 
     print('global_var')
     print(global_var)
-    free = is_port_in_use()
+    #free = is_port_in_use()
     print('port 5000 search')
-    print(free)
-    if free:
-        duckdb_pid = find_duckdb_process(file_name)
-        if duckdb_pid is not None:
-            print("DuckDB process found with PID:", duckdb_pid)
-            # Kill the DuckDB process
-            kill_process(duckdb_pid)
-            print("DuckDB process killed.")
-        else:
-            print("No DuckDB process found.")
-        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
-    else:
-        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+    #print(free)
+    #if free:
+    #    duckdb_pid = find_duckdb_process(file_name)
+    #    if duckdb_pid is not None:
+    #        print("DuckDB process found with PID:", duckdb_pid)
+    #        # Kill the DuckDB process
+    #        kill_process(duckdb_pid)
+    #        print("DuckDB process killed.")
+    #    else:
+    #        print("No DuckDB process found.")
+    #    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+    #else:
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs,connect_args={'read_only': True,})
