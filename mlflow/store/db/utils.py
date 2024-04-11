@@ -406,4 +406,4 @@ def create_sqlalchemy_engine(db_uri, method = None):
     #        print("No DuckDB process found.")
     #    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
     #else:
-    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs,connect_args={'read_only': True,})
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
