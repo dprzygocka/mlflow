@@ -1278,7 +1278,7 @@ class SqlAlchemyStore(AbstractStore):
                 next_token = SearchUtils.create_page_token(final_offset)
 
             return next_token
-
+        print('_search_runs')
         if max_results > SEARCH_MAX_RESULTS_THRESHOLD:
             raise MlflowException(
                 "Invalid value for request parameter max_results. It must be at "
@@ -1287,6 +1287,8 @@ class SqlAlchemyStore(AbstractStore):
             )
 
         stages = set(LifecycleStage.view_type_to_stages(run_view_type))
+        print('stages')
+        print(stages)
 
         with self.ManagedSessionMaker() as session:
             # Fetch the appropriate runs and eagerly load their summary metrics, params, and
@@ -1294,14 +1296,22 @@ class SqlAlchemyStore(AbstractStore):
             # ``run.to_mlflow_entity()``, so eager loading helps avoid additional database queries
             # that are otherwise executed at attribute access time under a lazy loading model.
             parsed_filters = SearchUtils.parse_search_filter(filter_string)
+            print('parsed_filters')
+            print(parsed_filters)
             cases_orderby, parsed_orderby, sorting_joins = _get_orderby_clauses(order_by, session)
+            print('cases_orderby, parsed_orderby, sorting_joins')
+            print(cases_orderby, parsed_orderby, sorting_joins)
 
             stmt = select(SqlRun, *cases_orderby)
+            print('stmt')
+            print(stmt)
             (
                 attribute_filters,
                 non_attribute_filters,
                 dataset_filters,
             ) = _get_sqlalchemy_filter_clauses(parsed_filters, session, self._get_dialect())
+            print('attribute_filters, non_attribute_filters, dataset_filters')
+            print(attribute_filters, non_attribute_filters, dataset_filters)
             for non_attr_filter in non_attribute_filters:
                 stmt = stmt.join(non_attr_filter)
             for idx, dataset_filter in enumerate(dataset_filters):
@@ -1330,12 +1340,20 @@ class SqlAlchemyStore(AbstractStore):
                 .limit(max_results)
             )
             queried_runs = session.execute(stmt).scalars(SqlRun).all()
+            print('queried_runs')
+            print(queried_runs)
 
             runs = [run.to_mlflow_entity() for run in queried_runs]
+            print('runs')
+            print(runs)
+            print('run_ids')
+            print(run_ids)
             run_ids = [run.info.run_id for run in runs]
 
             # add inputs to runs
             inputs = self._get_run_inputs(run_uuids=run_ids, session=session)
+            print('inputs')
+            print(inputs)
             runs_with_inputs = []
             for i, run in enumerate(runs):
                 runs_with_inputs.append(
@@ -1343,6 +1361,10 @@ class SqlAlchemyStore(AbstractStore):
                 )
 
             next_page_token = compute_next_token(len(runs_with_inputs))
+            print('runs_with_inputs')
+            print(runs_with_inputs)
+            print('next_page_token')
+            print(next_page_token)
 
         return runs_with_inputs, next_page_token
 
