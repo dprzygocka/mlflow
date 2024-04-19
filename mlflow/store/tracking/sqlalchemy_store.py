@@ -1619,6 +1619,10 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
                 attribute = getattr(SqlRun, SqlRun.get_attribute_name(key_name))
                 print('attribute')
                 print(attribute)
+                print('comparator')
+                print(comparator)
+                print('dialect')
+                print(dialect)
                 attr_filter = SearchUtils.get_sql_comparison_func(comparator, dialect)(
                     attribute, value
                 )
