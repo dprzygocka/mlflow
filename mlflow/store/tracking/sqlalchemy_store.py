@@ -1611,10 +1611,16 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
             else:
                 print('in else')
                 attribute = getattr(SqlRun, SqlRun.get_attribute_name(key_name))
+                print('attribute')
+                print(attribute)
                 attr_filter = SearchUtils.get_sql_comparison_func(comparator, dialect)(
                     attribute, value
                 )
+                print('attr_filter')
+                print(attr_filter)
                 attribute_filters.append(attr_filter)
+                print('attribute_filters')
+                print(attribute_filters)
         else:
             print('in else _get_sqlalchemy_filter_clauses')
             if SearchUtils.is_metric(key_type, comparator):
