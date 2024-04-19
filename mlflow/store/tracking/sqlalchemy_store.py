@@ -1574,6 +1574,12 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
     non_attribute_filters = []
     dataset_filters = []
     print('_get_sqlalchemy_filter_clauses')
+    print('parsed')
+    print(parsed)
+    print('session')
+    print(session)
+    print('dialect')
+    print(dialect)
 
     for sql_statement in parsed:
         key_type = sql_statement.get("type")
