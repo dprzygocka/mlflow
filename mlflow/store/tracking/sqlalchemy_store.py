@@ -1573,6 +1573,7 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
     attribute_filters = []
     non_attribute_filters = []
     dataset_filters = []
+    print('_get_sqlalchemy_filter_clauses')
 
     for sql_statement in parsed:
         key_type = sql_statement.get("type")
@@ -1581,10 +1582,13 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
         comparator = sql_statement.get("comparator").upper()
 
         key_name = SearchUtils.translate_key_alias(key_name)
+        print('key_name')
+        print(key_name)
 
         if SearchUtils.is_string_attribute(
             key_type, key_name, comparator
         ) or SearchUtils.is_numeric_attribute(key_type, key_name, comparator):
+            print('first if in _get_sqlalchemy_filter_clauses')
             if key_name == "run_name":
                 # Treat "attributes.run_name == <value>" as "tags.`mlflow.runName` == <value>".
                 # The name column in the runs table is empty for runs logged in MLflow <= 1.29.0.
@@ -1604,6 +1608,7 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
                 )
                 attribute_filters.append(attr_filter)
         else:
+            print('in else _get_sqlalchemy_filter_clauses')
             if SearchUtils.is_metric(key_type, comparator):
                 entity = SqlLatestMetric
                 value = float(value)
