@@ -1346,9 +1346,9 @@ class SqlAlchemyStore(AbstractStore):
             runs = [run.to_mlflow_entity() for run in queried_runs]
             print('runs')
             print(runs)
+            run_ids = [run.info.run_id for run in runs]
             print('run_ids')
             print(run_ids)
-            run_ids = [run.info.run_id for run in runs]
 
             # add inputs to runs
             inputs = self._get_run_inputs(run_uuids=run_ids, session=session)
