@@ -1612,6 +1612,8 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
             if SearchUtils.is_metric(key_type, comparator):
                 entity = SqlLatestMetric
                 value = float(value)
+                print('value')
+                print(value)
             elif SearchUtils.is_param(key_type, comparator):
                 entity = SqlParam
             elif SearchUtils.is_tag(key_type, comparator):
@@ -1623,7 +1625,8 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
                     f"Invalid search expression type '{key_type}'",
                     error_code=INVALID_PARAMETER_VALUE,
                 )
-
+            print('entity')
+            print(entity)
             if entity == SqlDataset:
                 if key_name == "context":
                     dataset_filters.append(
