@@ -23,7 +23,7 @@ from mlflow.entities import RunInfo
 from mlflow.entities.model_registry.model_version_stages import STAGE_DELETED_INTERNAL
 from mlflow.exceptions import MlflowException
 from mlflow.protos.databricks_pb2 import INVALID_PARAMETER_VALUE
-from mlflow.store.db.db_types import MSSQL, MYSQL, POSTGRES, SQLITE
+from mlflow.store.db.db_types import MSSQL, MYSQL, POSTGRES, SQLITE, DUCKDB
 from mlflow.utils.mlflow_tags import (
     MLFLOW_DATASET_CONTEXT,
 )
@@ -233,12 +233,14 @@ class SearchUtils:
         print({
             POSTGRES: comparison_func,
             SQLITE: comparison_func,
+            DUCKDB: comparison_func,
             MSSQL: mssql_comparison_func,
             MYSQL: mysql_comparison_func,
         }[dialect])
         return {
             POSTGRES: comparison_func,
             SQLITE: comparison_func,
+            DUCKDB: comparison_func,
             MSSQL: mssql_comparison_func,
             MYSQL: mysql_comparison_func,
         }[dialect]
