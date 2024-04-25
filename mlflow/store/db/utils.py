@@ -412,12 +412,12 @@ def create_sqlalchemy_engine(db_uri, method = None):
         duckdb_pid = find_duckdb_process(file_name)
         print('duckdb_pid')
         print(duckdb_pid)
-        while duckdb_pid is not None:
-            if duckdb_pid is not None:
-                print("DuckDB process found with PID:", duckdb_pid)
-                # Kill the DuckDB process
-                kill_process(duckdb_pid)
-                print("DuckDB process killed.")
-            else:
-                print("No DuckDB process found.")
+        #while duckdb_pid is not None:
+        #    if duckdb_pid is not None:
+        #        print("DuckDB process found with PID:", duckdb_pid)
+        #        # Kill the DuckDB process
+        #        kill_process(duckdb_pid)
+        #        print("DuckDB process killed.")
+        #    else:
+        #        print("No DuckDB process found.")
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
