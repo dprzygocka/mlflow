@@ -410,6 +410,8 @@ def create_sqlalchemy_engine(db_uri, method = None):
     print(free)
     if free:
         duckdb_pid = find_duckdb_process(file_name)
+        print('duckdb_pid')
+        print(duckdb_pid)
         while duckdb_pid is not None:
             if duckdb_pid is not None:
                 print("DuckDB process found with PID:", duckdb_pid)
