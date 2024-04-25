@@ -321,15 +321,28 @@ def kill_process(pid):
     # Execute the kill command to terminate the process
     subprocess.run(['kill', str(pid)])
 
-def is_port_in_use():
-     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind(('localhost', 5000))
-        except OSError as e:
-            if e.errno == 98:  # Error number 98: Address already in use
-                return True
-            else:
-                raise
+#def is_port_in_use():
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#        try:
+#            s.bind(('localhost', 5000))
+#        except OSError as e:
+#            #if e.errno == 98:  # Error number 98: Address already in use
+#                return True
+#            else:
+#                raise
+#        return False
+     
+def is_port_in_use(port):
+    try:
+        result = subprocess.run(['netstat', '-tuln'], capture_output=True, text=True)
+        if result.returncode == 0:
+            # Check if the port is in use in the netstat output
+            return f':{port}' in result.stdout
+        else:
+            print("Error:", result.stderr)
+            return False
+    except Exception as e:
+        print("Error executing netstat command:", e)
         return False
 
 def create_sqlalchemy_engine(db_uri, method = None):
@@ -392,18 +405,17 @@ def create_sqlalchemy_engine(db_uri, method = None):
 
     print('global_var')
     print(global_var)
-    free = is_port_in_use()
+    free = is_port_in_use(5000)
     print('port 5000 search')
     print(free)
     if free:
         duckdb_pid = find_duckdb_process(file_name)
-        if duckdb_pid is not None:
-            print("DuckDB process found with PID:", duckdb_pid)
-            # Kill the DuckDB process
-            kill_process(duckdb_pid)
-            print("DuckDB process killed.")
-        else:
-            print("No DuckDB process found.")
-        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
-    else:
-        return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
+        while duckdb_pid is not None:
+            if duckdb_pid is not None:
+                print("DuckDB process found with PID:", duckdb_pid)
+                # Kill the DuckDB process
+                kill_process(duckdb_pid)
+                print("DuckDB process killed.")
+            else:
+                print("No DuckDB process found.")
+    return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
