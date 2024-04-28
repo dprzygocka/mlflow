@@ -841,7 +841,6 @@ class SqlAlchemyStore(AbstractStore):
                     # Order by the metric run ID and key to ensure a consistent locking order
                     # across transactions, reducing deadlock likelihood
                     .order_by(SqlLatestMetric.run_uuid, SqlLatestMetric.key)
-                    .with_for_update()
                     .all()
                 )
                 latest_metrics.update({m.key: m for m in latest_metrics_batch})
