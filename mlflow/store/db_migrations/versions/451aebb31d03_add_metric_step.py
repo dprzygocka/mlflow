@@ -31,6 +31,7 @@ def upgrade():
             sa.Column('step', sa.BigInteger, nullable=False, server_default='0'),
             sa.PrimaryKeyConstraint('key', 'timestamp', 'step', 'run_uuid', 'value', name='new_metric_pk')
         )
+
         op.execute('INSERT INTO new_metrics_temp (key, value, timestamp, run_uuid, step) SELECT key, value, timestamp, run_uuid, 0 AS step FROM metrics;')
         op.drop_table('metrics')
 
