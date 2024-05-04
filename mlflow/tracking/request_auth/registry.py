@@ -13,7 +13,6 @@ class RequestAuthProviderRegistry:
         self._registry.append(request_auth_provider())
 
     def register_entrypoints(self):
-        print('request auth registry.py')
         for entrypoint in entrypoints.get_group_all(REQUEST_AUTH_PROVIDER_ENTRYPOINT):
             try:
                 self.register(entrypoint.load())

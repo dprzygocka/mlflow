@@ -19,13 +19,6 @@ depends_on = None
 
 
 def upgrade():
-    print("Current Database URL:", op.get_bind().engine.url)
-
-    # Check if tables exist in the current database
-    inspector = sa.inspect(op.get_bind())
-    table_names = inspector.get_table_names()
-    print("Tables in the database:", table_names)
-
     dialect = op.get_bind().dialect
     database_type = dialect.name
     if database_type == "duckdb":
@@ -52,7 +45,6 @@ def upgrade():
         )
         op.execute('INSERT INTO metrics SELECT * FROM new_metrics_temp;')
         op.drop_table('new_metrics_temp')
-        print('finish 451aebb31d03')
     else:
         op.add_column("metrics", sa.Column("step", sa.BigInteger(), nullable=False, server_default="0"))
         # Use batch mode so that we can run "ALTER TABLE" statements against SQLite

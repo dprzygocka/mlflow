@@ -1,5 +1,3 @@
-global_var = False
-
 import logging
 import os
 import socket
@@ -213,13 +211,11 @@ def _upgrade_db(engine):
 
     class AlembicDuckDBImpl(DefaultImpl):
         """Alembic implementation for DuckDB."""
-
         __dialect__ = "duckdb"
 
     db_url = str(engine.url)
     _logger.info("Updating database tables")
     config = _get_alembic_config(db_url)
-
     # Initialize a shared connection to be used for the database upgrade, ensuring that
     # any connection-dependent state (e.g., the state of an in-memory database) is preserved
     # for reference by the upgrade routine. For more information, see
@@ -235,7 +231,6 @@ def _get_schema_version(engine):
 
     class AlembicDuckDBImpl(DefaultImpl):
         """Alembic implementation for DuckDB."""
-
         __dialect__ = "duckdb"
 
     with engine.connect() as connection:
@@ -289,17 +284,6 @@ def find_duckdb_process(file_name):
 def kill_process(pid):
     # Execute the kill command to terminate the process
     subprocess.run(['kill', str(pid)])
-
-#def is_port_in_use():
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#        try:
-#            s.bind(('localhost', 5000))
-#        except OSError as e:
-#            #if e.errno == 98:  # Error number 98: Address already in use
-#                return True
-#            else:
-#                raise
-#        return False
      
 def is_port_in_use(port):
     try:
@@ -314,7 +298,7 @@ def is_port_in_use(port):
         print("Error executing netstat command:", e)
         return False
 
-def create_sqlalchemy_engine(db_uri, method = None):
+def create_sqlalchemy_engine(db_uri):
     pool_size = MLFLOW_SQLALCHEMYSTORE_POOL_SIZE.get()
     pool_max_overflow = MLFLOW_SQLALCHEMYSTORE_MAX_OVERFLOW.get()
     pool_recycle = MLFLOW_SQLALCHEMYSTORE_POOL_RECYCLE.get()

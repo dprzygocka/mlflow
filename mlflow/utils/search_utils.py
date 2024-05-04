@@ -229,14 +229,7 @@ class SearchUtils:
                 )
 
             return comparison_func(column, value)
-        print('comparison function')
-        print({
-            POSTGRES: comparison_func,
-            SQLITE: comparison_func,
-            DUCKDB: comparison_func,
-            MSSQL: mssql_comparison_func,
-            MYSQL: mysql_comparison_func,
-        }[dialect])
+
         return {
             POSTGRES: comparison_func,
             SQLITE: comparison_func,

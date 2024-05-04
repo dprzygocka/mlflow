@@ -138,11 +138,8 @@ class SqlAlchemyStore(AbstractStore):
         self.db_type = extract_db_type_from_uri(db_uri)
         self.artifact_root_uri = resolve_uri_if_local(default_artifact_root)
         # Quick check to see if the respective SQLAlchemy database engine has already been created.
-        print(' SqlAlchemyStore._db_uri_sql_alchemy_engine_map')
-        print( SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
         if db_uri not in SqlAlchemyStore._db_uri_sql_alchemy_engine_map:
             with SqlAlchemyStore._db_uri_sql_alchemy_engine_map_lock:
-                print('we init new stores for db uri')
                 # Repeat check to prevent race conditions where one thread checks for an existing
                 # engine while another is creating the respective one, resulting in multiple
                 # engines being created. It isn't combined with the above check to prevent
@@ -153,8 +150,6 @@ class SqlAlchemyStore(AbstractStore):
                         db_uri
                     ] = mlflow.store.db.utils.create_sqlalchemy_engine_with_retry(db_uri)
 
-        print(' SqlAlchemyStore._db_uri_sql_alchemy_engine_map')
-        print( SqlAlchemyStore._db_uri_sql_alchemy_engine_map)
         self.engine = SqlAlchemyStore._db_uri_sql_alchemy_engine_map[db_uri]
         # On a completely fresh MLflow installation against an empty database (verify database
         # emptiness by checking that 'experiments' etc aren't in the list of table names), run all
@@ -886,12 +881,8 @@ class SqlAlchemyStore(AbstractStore):
                 # editing the attributes of latest_metric, which is a
                 # SqlLatestMetric instance will result in UPDATE in DB side.
                 latest_metric = _overwrite_metric(logged_metric, latest_metric)
-        print('line 889 sqlaclhemy store add all new latest metrics dict')
-        print(new_latest_metric_dict)
         if new_latest_metric_dict:
-            print("in add all new_latest_metric_dict")
             session.add_all(new_latest_metric_dict.values())
-            print('after session add alll')
 
     def get_metric_history(self, run_id, metric_key, max_results=None, page_token=None):
         """
@@ -1083,7 +1074,6 @@ class SqlAlchemyStore(AbstractStore):
                 # event of an error during "commit", a rollback is required in order to continue
                 # using the session. In this case, we re-use the session because the SqlRun, `run`,
                 # is lazily evaluated during the invocation of `run.params`.
-                print('1086 rollback in sqlalchemy store')
                 session.rollback()
                 existing_params = [p.value for p in run.params if p.key == param.key]
                 if len(existing_params) > 0:
@@ -1281,7 +1271,6 @@ class SqlAlchemyStore(AbstractStore):
                 next_token = SearchUtils.create_page_token(final_offset)
 
             return next_token
-        print('_search_runs')
         if max_results > SEARCH_MAX_RESULTS_THRESHOLD:
             raise MlflowException(
                 "Invalid value for request parameter max_results. It must be at "
@@ -1290,8 +1279,6 @@ class SqlAlchemyStore(AbstractStore):
             )
 
         stages = set(LifecycleStage.view_type_to_stages(run_view_type))
-        print('stages')
-        print(stages)
 
         with self.ManagedSessionMaker() as session:
             # Fetch the appropriate runs and eagerly load their summary metrics, params, and
@@ -1299,22 +1286,14 @@ class SqlAlchemyStore(AbstractStore):
             # ``run.to_mlflow_entity()``, so eager loading helps avoid additional database queries
             # that are otherwise executed at attribute access time under a lazy loading model.
             parsed_filters = SearchUtils.parse_search_filter(filter_string)
-            print('parsed_filters')
-            print(parsed_filters)
             cases_orderby, parsed_orderby, sorting_joins = _get_orderby_clauses(order_by, session)
-            print('cases_orderby, parsed_orderby, sorting_joins')
-            print(cases_orderby, parsed_orderby, sorting_joins)
 
             stmt = select(SqlRun, *cases_orderby)
-            print('stmt')
-            print(stmt)
             (
                 attribute_filters,
                 non_attribute_filters,
                 dataset_filters,
             ) = _get_sqlalchemy_filter_clauses(parsed_filters, session, self._get_dialect())
-            print('attribute_filters, non_attribute_filters, dataset_filters')
-            print(attribute_filters, non_attribute_filters, dataset_filters)
             for non_attr_filter in non_attribute_filters:
                 stmt = stmt.join(non_attr_filter)
             for idx, dataset_filter in enumerate(dataset_filters):
@@ -1343,20 +1322,11 @@ class SqlAlchemyStore(AbstractStore):
                 .limit(max_results)
             )
             queried_runs = session.execute(stmt).scalars(SqlRun).all()
-            print('queried_runs')
-            print(queried_runs)
-
             runs = [run.to_mlflow_entity() for run in queried_runs]
-            print('runs')
-            print(runs)
             run_ids = [run.info.run_id for run in runs]
-            print('run_ids')
-            print(run_ids)
 
             # add inputs to runs
             inputs = self._get_run_inputs(run_uuids=run_ids, session=session)
-            print('inputs')
-            print(inputs)
             runs_with_inputs = []
             for i, run in enumerate(runs):
                 runs_with_inputs.append(
@@ -1364,10 +1334,6 @@ class SqlAlchemyStore(AbstractStore):
                 )
 
             next_page_token = compute_next_token(len(runs_with_inputs))
-            print('runs_with_inputs')
-            print(runs_with_inputs)
-            print('next_page_token')
-            print(next_page_token)
 
         return runs_with_inputs, next_page_token
 
@@ -1576,13 +1542,6 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
     attribute_filters = []
     non_attribute_filters = []
     dataset_filters = []
-    print('_get_sqlalchemy_filter_clauses')
-    print('parsed')
-    print(parsed)
-    print('session')
-    print(session)
-    print('dialect')
-    print(dialect)
 
     for sql_statement in parsed:
         key_type = sql_statement.get("type")
@@ -1591,56 +1550,32 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
         comparator = sql_statement.get("comparator").upper()
 
         key_name = SearchUtils.translate_key_alias(key_name)
-        print('key_name')
-        print(key_name)
 
         if SearchUtils.is_string_attribute(
             key_type, key_name, comparator
         ) or SearchUtils.is_numeric_attribute(key_type, key_name, comparator):
-            print('first if in _get_sqlalchemy_filter_clauses')
-            print('key_name')
-            print(key_name)
             if key_name == "run_name":
-                print('in if')
                 # Treat "attributes.run_name == <value>" as "tags.`mlflow.runName` == <value>".
                 # The name column in the runs table is empty for runs logged in MLflow <= 1.29.0.
                 key_filter = SearchUtils.get_sql_comparison_func("=", dialect)(
                     SqlTag.key, MLFLOW_RUN_NAME
                 )
-                print('key_filter')
-                print(key_filter)
                 val_filter = SearchUtils.get_sql_comparison_func(comparator, dialect)(
                     SqlTag.value, value
                 )
-                print('val_filter')
-                print(val_filter)
                 non_attribute_filters.append(
                     session.query(SqlTag).filter(key_filter, val_filter).subquery()
                 )
             else:
-                print('in else')
                 attribute = getattr(SqlRun, SqlRun.get_attribute_name(key_name))
-                print('attribute')
-                print(attribute)
-                print('comparator')
-                print(comparator)
-                print('dialect')
-                print(dialect)
                 attr_filter = SearchUtils.get_sql_comparison_func(comparator, dialect)(
                     attribute, value
                 )
-                print('attr_filter')
-                print(attr_filter)
                 attribute_filters.append(attr_filter)
-                print('attribute_filters')
-                print(attribute_filters)
         else:
-            print('in else _get_sqlalchemy_filter_clauses')
             if SearchUtils.is_metric(key_type, comparator):
                 entity = SqlLatestMetric
                 value = float(value)
-                print('value')
-                print(value)
             elif SearchUtils.is_param(key_type, comparator):
                 entity = SqlParam
             elif SearchUtils.is_tag(key_type, comparator):
@@ -1652,8 +1587,6 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
                     f"Invalid search expression type '{key_type}'",
                     error_code=INVALID_PARAMETER_VALUE,
                 )
-            print('entity')
-            print(entity)
             if entity == SqlDataset:
                 if key_name == "context":
                     dataset_filters.append(

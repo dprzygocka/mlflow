@@ -11,7 +11,6 @@ import sqlalchemy as sa
 
 from mlflow.store.tracking.dbmodels.models import SqlLatestMetric, SqlMetric
 
-
 # revision identifiers, used by Alembic.
 revision = "39d1c3be5f05"
 down_revision = "a8c4a736bde6"

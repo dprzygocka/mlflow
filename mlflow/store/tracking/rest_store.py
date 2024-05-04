@@ -291,7 +291,6 @@ class RestStore(AbstractStore):
     def _search_runs(
         self, experiment_ids, filter_string, run_view_type, max_results, order_by, page_token
     ):
-        print('search_runs')
         experiment_ids = [str(experiment_id) for experiment_id in experiment_ids]
         sr = SearchRuns(
             experiment_ids=experiment_ids,
@@ -301,19 +300,9 @@ class RestStore(AbstractStore):
             order_by=order_by,
             page_token=page_token,
         )
-        print('experiment_ids')
-        print(experiment_ids)
-        print('sr')
-        print(sr)
         req_body = message_to_json(sr)
-        print('req_body')
-        print(req_body)
         response_proto = self._call_endpoint(SearchRuns, req_body)
-        print('response_proto')
-        print(response_proto)
         runs = [Run.from_proto(proto_run) for proto_run in response_proto.runs]
-        print('runs')
-        print(runs)
         # If next_page_token is not set, we will see it as "". We need to convert this to None.
         next_page_token = None
         if response_proto.next_page_token:

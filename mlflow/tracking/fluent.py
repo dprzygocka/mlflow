@@ -1822,7 +1822,6 @@ def search_runs(
     search_all_experiments: bool = False,
     experiment_names: Optional[List[str]] = None,
 ) -> Union[List[Run], "pandas.DataFrame"]:
-    print('search runs in fluent.py')
     """
     Search for Runs that fit the specified criteria.
 

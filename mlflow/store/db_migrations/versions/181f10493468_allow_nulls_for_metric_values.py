@@ -18,7 +18,6 @@ depends_on = None
 
 
 def upgrade():
-    print('problem here')
     dialect = op.get_bind().dialect
     database_type = dialect.name
     if database_type == "duckdb":
@@ -47,7 +46,6 @@ def upgrade():
         )
         op.execute('INSERT INTO new_metrics_temp SELECT * FROM metrics;')
         op.drop_table('new_metrics_temp')
-        print('finish 181f10493468')
     else:
         with op.batch_alter_table("metrics") as batch_op:
             batch_op.alter_column("value", type_=sa.types.Float(precision=53), nullable=False)

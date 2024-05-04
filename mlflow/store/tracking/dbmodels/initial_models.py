@@ -24,7 +24,6 @@ import sqlalchemy
 from sqlalchemy.orm import backref, declarative_base, relationship
 
 Base = declarative_base()
-print("now here")
 
 SourceTypes = [
     "NOTEBOOK",

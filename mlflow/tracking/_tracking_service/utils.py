@@ -65,8 +65,6 @@ def set_tracking_uri(uri: Union[str, Path]) -> None:
         # then .resolve() to clean the path
         uri = uri.absolute().resolve().as_uri()
     global _tracking_uri
-    print("set _tracking_uri")
-    print(uri)
     _tracking_uri = uri
 
 
@@ -170,7 +168,6 @@ _tracking_store_registry = TrackingStoreRegistry()
 
 
 def _register_tracking_stores():
-    print('_register_tracking_stores')
     global _tracking_store_registry
     _tracking_store_registry.register("", _get_file_store)
     _tracking_store_registry.register("file", _get_file_store)

@@ -34,7 +34,6 @@ class RunContextProviderRegistry:
         self._registry.append(run_context_provider_cls())
 
     def register_entrypoints(self):
-        print('context registry.py')
         """Register tracking stores provided by other packages"""
         for entrypoint in entrypoints.get_group_all("mlflow.run_context_provider"):
             try:
