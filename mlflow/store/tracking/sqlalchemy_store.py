@@ -886,9 +886,12 @@ class SqlAlchemyStore(AbstractStore):
                 # editing the attributes of latest_metric, which is a
                 # SqlLatestMetric instance will result in UPDATE in DB side.
                 latest_metric = _overwrite_metric(logged_metric, latest_metric)
-
+        print('line 889 sqlaclhemy store add all new latest metrics dict')
+        print(new_latest_metric_dict)
         if new_latest_metric_dict:
+            print("in add all new_latest_metric_dict")
             session.add_all(new_latest_metric_dict.values())
+            print('after session add alll')
 
     def get_metric_history(self, run_id, metric_key, max_results=None, page_token=None):
         """
@@ -1080,6 +1083,7 @@ class SqlAlchemyStore(AbstractStore):
                 # event of an error during "commit", a rollback is required in order to continue
                 # using the session. In this case, we re-use the session because the SqlRun, `run`,
                 # is lazily evaluated during the invocation of `run.params`.
+                print('1086 rollback in sqlalchemy store')
                 session.rollback()
                 existing_params = [p.value for p in run.params if p.key == param.key]
                 if len(existing_params) > 0:
