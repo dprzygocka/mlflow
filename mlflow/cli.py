@@ -422,7 +422,6 @@ def server(
     artifacts_only_config_validation(artifacts_only, backend_store_uri)
 
     try:
-        print('cli initialize_backend_stores')
         initialize_backend_stores(backend_store_uri, registry_store_uri, default_artifact_root)
     except Exception as e:
         _logger.error("Error initializing backend store")

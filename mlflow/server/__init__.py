@@ -70,7 +70,6 @@ def version():
 # Serve the "get-artifact" route.
 @app.route(_add_static_prefix("/get-artifact"))
 def serve_artifacts():
-    print('server artifacts')
     return get_artifact_handler()
 
 
@@ -95,7 +94,6 @@ def serve_get_metric_history_bulk_interval():
 # Serve the "experiments/search-datasets" route.
 @app.route(_add_static_prefix("/ajax-api/2.0/mlflow/experiments/search-datasets"), methods=["POST"])
 def serve_search_datasets():
-    print('init @app.route(_add_static_prefix("/ajax-api/2.0/mlflow/experiments/search-datasets"), methods=["POST"]) ')
     return search_datasets_handler()
 
 
@@ -129,7 +127,6 @@ def serve_static_file(path):
 # Serve the index.html for the React App for all other routes.
 @app.route(_add_static_prefix("/"))
 def serve():
-    print('serve')
     if os.path.exists(os.path.join(app.static_folder, "index.html")):
         return send_from_directory(app.static_folder, "index.html")
 
@@ -278,7 +275,6 @@ def _run_server(
         app = f"{__name__}:app"
         is_factory = False
     else:
-        print('app')
         app = _find_app(app_name)
         is_factory = _is_factory(app)
         # `waitress` doesn't support `()` syntax for factory functions.
@@ -290,6 +286,4 @@ def _run_server(
         full_command = _build_waitress_command(waitress_opts, host, port, app, is_factory)
     else:
         full_command = _build_gunicorn_command(gunicorn_opts, host, port, workers or 4, app)
-    global global_var
-    global_var = True
     _exec_cmd(full_command, extra_env=env_map, capture_output=False)

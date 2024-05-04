@@ -60,7 +60,6 @@ def search_experiments(view):
     Search for experiments in the configured tracking server.
     """
     view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
-    print("search experiment here")
     experiments = mlflow.search_experiments(view_type=view_type)
     table = [
         [

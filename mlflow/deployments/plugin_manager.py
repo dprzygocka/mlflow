@@ -66,7 +66,6 @@ class PluginManager(abc.ABC):
         self.registry[target_name] = entrypoints.EntryPoint(target_name, plugin_module, None)
 
     def register_entrypoints(self):
-        print('plugin manager')
         """
         Runs through all the packages that has the `group_name` defined as the entrypoint
         and register that into the registry

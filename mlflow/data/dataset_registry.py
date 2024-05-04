@@ -44,7 +44,6 @@ class DatasetRegistry:
         return constructor_name
 
     def register_entrypoints(self):
-        print('dataset_registry')
         """
         Registers dataset sources defined as Python entrypoints. For reference, see
         https://mlflow.org/docs/latest/plugins.html#defining-a-plugin.
