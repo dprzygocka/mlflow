@@ -47,8 +47,9 @@ class SqlExperiment(Base):
     """
 
     __tablename__ = "experiments"
-
+    #DuckDB do not support autoincrement
     #experiment_id = Column(Integer, autoincrement=True)
+    #SQLite do not support Seqence
     experiment_id_seq = sqlalchemy.Sequence('experiment_id')
     experiment_id = Column('experiment_id', Integer, experiment_id_seq, server_default=experiment_id_seq.next_value(), primary_key=True)
     """

@@ -149,7 +149,6 @@ class SqlAlchemyStore(AbstractStore):
                     SqlAlchemyStore._db_uri_sql_alchemy_engine_map[
                         db_uri
                     ] = mlflow.store.db.utils.create_sqlalchemy_engine_with_retry(db_uri)
-
         self.engine = SqlAlchemyStore._db_uri_sql_alchemy_engine_map[db_uri]
         # On a completely fresh MLflow installation against an empty database (verify database
         # emptiness by checking that 'experiments' etc aren't in the list of table names), run all
@@ -836,6 +835,8 @@ class SqlAlchemyStore(AbstractStore):
                     # Order by the metric run ID and key to ensure a consistent locking order
                     # across transactions, reducing deadlock likelihood
                     .order_by(SqlLatestMetric.run_uuid, SqlLatestMetric.key)
+                    #DUCKDB do not support this option
+                    #.with_for_update()
                     .all()
                 )
                 latest_metrics.update({m.key: m for m in latest_metrics_batch})
@@ -881,6 +882,7 @@ class SqlAlchemyStore(AbstractStore):
                 # editing the attributes of latest_metric, which is a
                 # SqlLatestMetric instance will result in UPDATE in DB side.
                 latest_metric = _overwrite_metric(logged_metric, latest_metric)
+
         if new_latest_metric_dict:
             session.add_all(new_latest_metric_dict.values())
 
@@ -1271,6 +1273,7 @@ class SqlAlchemyStore(AbstractStore):
                 next_token = SearchUtils.create_page_token(final_offset)
 
             return next_token
+
         if max_results > SEARCH_MAX_RESULTS_THRESHOLD:
             raise MlflowException(
                 "Invalid value for request parameter max_results. It must be at "
@@ -1322,6 +1325,7 @@ class SqlAlchemyStore(AbstractStore):
                 .limit(max_results)
             )
             queried_runs = session.execute(stmt).scalars(SqlRun).all()
+
             runs = [run.to_mlflow_entity() for run in queried_runs]
             run_ids = [run.info.run_id for run in runs]
 
@@ -1587,6 +1591,7 @@ def _get_sqlalchemy_filter_clauses(parsed, session, dialect):
                     f"Invalid search expression type '{key_type}'",
                     error_code=INVALID_PARAMETER_VALUE,
                 )
+
             if entity == SqlDataset:
                 if key_name == "context":
                     dataset_filters.append(
