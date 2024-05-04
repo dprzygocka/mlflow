@@ -422,7 +422,6 @@ def _get_request_json(flask_request=request):
 def _get_request_message(request_message, flask_request=request, schema=None):
     from querystring_parser import parser
 
-
     if flask_request.method == "GET" and len(flask_request.query_string) > 0:
         # This is a hack to make arrays of length 1 work with the parser.
         # for example experiment_ids%5B%5D=0 should be parsed to {experiment_ids: [0]}
@@ -438,7 +437,6 @@ def _get_request_message(request_message, flask_request=request, schema=None):
         # atomic value. Since protobuf requires that the values of repeated fields are lists,
         # deserialization will fail unless we do the fix below.
         for field in request_message.DESCRIPTOR.fields:
-
             if (
                 field.label == descriptor.FieldDescriptor.LABEL_REPEATED
                 and field.name in request_dict
@@ -466,6 +464,7 @@ def _get_request_message(request_message, flask_request=request, schema=None):
         parse_dict(request_json, request_message)
     except ParseError:
         proto_parsing_succeeded = False
+
     schema = schema or {}
     for schema_key, schema_validation_fns in schema.items():
         if schema_key in request_json or _assert_required in schema_validation_fns:
@@ -1244,7 +1243,9 @@ def search_datasets_handler():
             ),
             error_code=INVALID_PARAMETER_VALUE,
         )
+
     store = _get_tracking_store()
+
     if hasattr(store, "_search_datasets"):
         return {
             "dataset_summaries": [

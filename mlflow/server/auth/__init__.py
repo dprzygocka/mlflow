@@ -214,7 +214,6 @@ def _get_permission_from_experiment_name() -> Permission:
 
 
 def _get_permission_from_run_id() -> Permission:
-    print('_get_permission_from_run_id')
     # run permissions inherit from parent resource (experiment)
     # so we just get the experiment permission
     run_id = _get_request_param("run_id")

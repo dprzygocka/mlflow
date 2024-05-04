@@ -42,7 +42,6 @@ class ArtifactRepositoryRegistry:
         self._registry[scheme] = repository
 
     def register_entrypoints(self):
-        print('artifact repository registry')
         # Register artifact repositories provided by other packages
         for entrypoint in entrypoints.get_group_all("mlflow.artifact_repository"):
             try:

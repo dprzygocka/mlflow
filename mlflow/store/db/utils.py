@@ -66,8 +66,6 @@ def _get_package_dir():
 
 
 def _all_tables_exist(engine):
-    print('in utils _all_tables_exist')
-    print(sqlalchemy.inspect(engine).get_table_names())
     return {
         t
         for t in sqlalchemy.inspect(engine).get_table_names()
@@ -97,31 +95,24 @@ def _initialize_tables(engine):
     InitialBase.metadata.create_all(engine)
     inspector = inspect(engine)
     table_names = inspector.get_table_names()
-
-    # Print the table names
-    print("Tables in the database:", table_names)
     _upgrade_db(engine)
 
 
 def _get_latest_schema_revision():
-    print('_get_latest_schema_revision')
     """Get latest schema revision as a string."""
     # We aren't executing any commands against a DB, so we leave the DB URL unspecified
     config = _get_alembic_config(db_url="")
     script = ScriptDirectory.from_config(config)
-    print('beofre heads')
     heads = script.get_heads()
     if len(heads) != 1:
         raise MlflowException(
             f"Migration script directory was in unexpected state. Got {len(heads)} head "
             f"database versions but expected only 1. Found versions: {heads}"
         )
-    print('finish verifcation of latest schema revision')
     return heads[0]
 
 
 def _verify_schema(engine):
-    print('verify schema')
     head_revision = _get_latest_schema_revision()
     current_rev = _get_schema_version(engine)
     if current_rev != head_revision:
@@ -176,8 +167,6 @@ def _get_managed_session_maker(SessionMaker, db_type):
 
 
 def _get_alembic_config(db_url, alembic_dir=None):
-    print('_get_alembic_config')
-    print(db_url)
     """
     Constructs an alembic Config object referencing the specified database and migration script
     directory.
@@ -198,18 +187,12 @@ def _get_alembic_config(db_url, alembic_dir=None):
         if alembic_dir is None
         else alembic_dir
     )
-    print('final_alembic_dir')
-    print(final_alembic_dir)
     # Escape any '%' that appears in a db_url. This could be in a password,
     # url, or anything that is part of a potentially complex database url
     db_url = db_url.replace("%", "%%")
     config = Config(os.path.join(final_alembic_dir, "alembic.ini"))
     config.set_main_option("script_location", final_alembic_dir)
-    print('make sure that alembic connects to right db')
-    print(db_url)
     config.set_main_option("sqlalchemy.url", db_url)
-    print('end of the function _get_alembic_config')
-    print(config)
     return config
 
 
@@ -228,11 +211,6 @@ def _upgrade_db(engine):
     from alembic import command
     from alembic.ddl.impl import DefaultImpl
 
-    print(sqlalchemy.inspect(engine).get_table_names())
-    for t in sqlalchemy.inspect(engine).get_table_names():
-        print('name of th etable 2')
-        print(t)
-
     class AlembicDuckDBImpl(DefaultImpl):
         """Alembic implementation for DuckDB."""
 
@@ -247,7 +225,6 @@ def _upgrade_db(engine):
     # for reference by the upgrade routine. For more information, see
     # https://alembic.sqlalchemy.org/en/latest/cookbook.html#sharing-a-
     # connection-with-a-series-of-migration-commands-and-environments
-    print('upgrade db begin connection')
     with engine.begin() as connection:
         config.attributes["connection"] = connection
         command.upgrade(config, "heads")
@@ -261,9 +238,6 @@ def _get_schema_version(engine):
 
         __dialect__ = "duckdb"
 
-    print('_get_schema_version')
-    print('engine')
-    print(engine)
     with engine.connect() as connection:
         mc = MigrationContext.configure(connection)
         return mc.get_current_revision()
@@ -273,12 +247,9 @@ def create_sqlalchemy_engine_with_retry(db_uri):
     attempts = 0
     while True:
         attempts += 1
-        print("create_sqlalchemy_engine_with_retry")
         engine = create_sqlalchemy_engine(db_uri)
-        print(engine)
         try:
             sqlalchemy.inspect(engine)
-            print("sqlalchemy inspection worked")
             return engine
         except Exception as e:
             if attempts < MAX_RETRY_COUNT:
@@ -298,12 +269,10 @@ import subprocess
 
 def find_duckdb_process(file_name):
     # Execute the lsof command to find processes using the DuckDB file
-    print('before result')
     try:
         result = subprocess.run(['lsof', f'./{file_name}'], capture_output=True, text=True)
     except Exception as e:
         return None
-    print(result)
     
     # Check if the command was successful
     if result.returncode == 0:
@@ -383,38 +352,16 @@ def create_sqlalchemy_engine(db_uri, method = None):
         pool_kwargs["poolclass"] = pool_class_map[poolclass]
     if pool_kwargs:
         _logger.info("Create SQLAlchemy engine with pool options %s", pool_kwargs)
-    print("utils.py 286")
-    print("db_uri")
-    print(db_uri)
-    print("**pool_kwargs")
-    print(**pool_kwargs)
-    print("db_uri", db_uri)
-    print('ask sql alchemy to create engine based on uri')
-    print('how sqlalchemy know how to create duckdb engine??? bc i installed duckdb-engine created by mouse')
 
     import re
-    #connect_args={'read_only': True,}
-    print('method try')
     pattern = r'[^/]+$'
     match = re.search(pattern, db_uri)
-    print(db_uri)
-    print(match.group(0))
     file_name = match.group(0)
-    print('find file')
-    print(os.path.exists(f'./{match.group(0)}'))
-
-    print('global_var')
-    print(global_var)
     free = is_port_in_use(5000)
-    print('port 5000 search')
-    print(free)
     if free:
         duckdb_pid = find_duckdb_process(file_name)
-        print('duckdb_pid')
-        print(duckdb_pid)
         while duckdb_pid is not None:
             if duckdb_pid is not None:
-                print("DuckDB process found with PID:", duckdb_pid)
                 # Kill the DuckDB process
                 kill_process(duckdb_pid)
                 print("DuckDB process killed.")
