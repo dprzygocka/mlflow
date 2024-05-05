@@ -93,7 +93,6 @@ from mlflow.server.validation import _validate_content_type
 from mlflow.store.artifact.artifact_repo import MultipartUploadMixin
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
 from mlflow.store.db.db_types import DATABASE_ENGINES
-from mlflow.store.tracking.sqlalchemy_store import SqlAlchemyStore
 from mlflow.tracking._model_registry import utils as registry_utils
 from mlflow.tracking._model_registry.registry import ModelRegistryStoreRegistry
 from mlflow.tracking._tracking_service import utils
@@ -120,7 +119,7 @@ class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
         self.register("", self._get_file_store)
         self.register("file", self._get_file_store)
         for scheme in DATABASE_ENGINES:
-            self.register(scheme, self._get_sqlalchemy_store) 
+            self.register(scheme, self._get_sqlalchemy_store)
         self.register_entrypoints()
 
     @classmethod
