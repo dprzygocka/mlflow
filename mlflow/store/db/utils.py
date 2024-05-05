@@ -8,7 +8,6 @@ import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import sql
-from sqlalchemy import create_engine, inspect
 
 # We need to import sqlalchemy.pool to convert poolclass string to class object
 from sqlalchemy.pool import (
@@ -91,8 +90,6 @@ def _all_tables_exist(engine):
 def _initialize_tables(engine):
     _logger.info("Creating initial MLflow database tables...")
     InitialBase.metadata.create_all(engine)
-    inspector = inspect(engine)
-    table_names = inspector.get_table_names()
     _upgrade_db(engine)
 
 
