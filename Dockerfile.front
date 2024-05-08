@@ -1,0 +1,52 @@
+(base) daga@LAPTOP-JD70FA7V:~/mlflow$ cat Dockerfile.front
+# Use an official Python runtime as a parent image
+FROM python:3.8-bullseye
+
+# Set the working directory to /home/mlflow
+WORKDIR /home/mlflow
+
+# Copy the current directory contents into the container at /home/mlflow
+COPY . /home/mlflow
+
+RUN apt-get update && apt-get install -y ninja-build && \
+    # jpeg install
+    curl -O https://www.ijg.org/files/jpegsrc.v9f.tar.gz && \
+    tar -xzvf jpegsrc.v9f.tar.gz && \
+    cd jpeg-9f && \
+    ./configure && \
+    make install && \
+    #move to root directory
+    cd .. && \
+    # cairo install
+    apt-get install -y libcairo2-dev && \
+    # install pixman
+    python -m pip install meson==0.61.0 && \
+    curl -O https://www.cairographics.org/releases/pixman-0.43.4.tar.gz && \
+    tar -xzvf pixman-0.43.4.tar.gz && \
+    cd pixman-0.43.4 && \
+    mkdir build && cd build && meson setup --prefix=/usr --buildtype=release .. && ninja && \
+    ninja install && \
+    #move to root directory
+    cd ../.. && \
+    #install pango
+    wget https://download.gnome.org/sources/pango/1.48/pango-1.48.9.tar.xz && \
+    tar -xJvf pango-1.48.9.tar.xz && \
+    cd pango-1.48.9 && \
+    apt-get install -y cmake libfribidi-bin libfribidi-dev libharfbuzz-dev gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev && \
+    python -m pip install meson==0.61.0 && \
+    mkdir build && cd build && meson --prefix=/usr --buildtype=release --wrap-mode=nofallback .. && ninja && \
+    ninja install && \
+    #move to root directory
+    cd ../.. && \
+    #install node npm
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs && \
+    npm install --global yarn && \
+    #install yarn
+    cd mlflow/server/js && \
+    yarn install && \
+    yarn build && \
+    yarn up @ag-grid-community/client-side-row-model@28.2.1 && \
+    yarn up @ag-grid-community/core@28.2.1 && \
+    yarn up @ag-grid-community/react@28.2.1
+# Make port 3000 available to the world outside this container
+EXPOSE 3000

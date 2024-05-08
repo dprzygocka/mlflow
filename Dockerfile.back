@@ -1,0 +1,14 @@
+# Use an official Python runtime as a parent image
+FROM python:3.8-bullseye
+
+# Set the working directory to /home/mlflow
+WORKDIR /home/mlflow
+
+# Copy the current directory contents into the container at /home/mlflow
+COPY . /home/mlflow
+
+RUN pip install -e . && \
+    pip install duckdb_engine==0.12.0 && \
+    apt-get update && apt-get install -y net-tools
+
+EXPOSE 5000
