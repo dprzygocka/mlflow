@@ -55,7 +55,7 @@ services:
     command:
       - /bin/bash
       - -c
-      - yarn start
+      - cd mlflow/server/js && yarn start
     restart: always
 
 volumes:
