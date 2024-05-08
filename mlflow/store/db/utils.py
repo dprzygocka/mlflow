@@ -263,14 +263,20 @@ def find_duckdb_process(file_name):
     # Execute the lsof command to find processes using the DuckDB file
     try:
         result = subprocess.run(['lsof', f'./{file_name}'], capture_output=True, text=True)
+        print('find the process')
+        print(result)
     except Exception as e:
         return None
     
     # Check if the command was successful
     if result.returncode == 0:
+        print('lines')
+        print(lines)
         # Split the output by lines and extract the PID from the first line
         lines = result.stdout.strip().split('\n')
         if lines:
+            print('pid')
+            print(pid)
             pid = lines[1].split()[1]  # Second column of the second line contains the PID
             return int(pid)
     else:
