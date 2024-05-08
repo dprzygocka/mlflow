@@ -270,14 +270,14 @@ def find_duckdb_process(file_name):
     
     # Check if the command was successful
     if result.returncode == 0:
-        print('lines')
-        print(lines)
         # Split the output by lines and extract the PID from the first line
         lines = result.stdout.strip().split('\n')
+        print('lines')
+        print(lines)
         if lines:
+            pid = lines[1].split()[1]  # Second column of the second line contains the PID
             print('pid')
             print(pid)
-            pid = lines[1].split()[1]  # Second column of the second line contains the PID
             return int(pid)
     else:
         print("Error:", result.stderr)
