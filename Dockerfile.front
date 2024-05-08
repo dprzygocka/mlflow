@@ -44,7 +44,6 @@ RUN apt-get update && apt-get install -y ninja-build && \
     #install yarn
     cd mlflow/server/js && \
     yarn install && \
-    yarn build && \
     yarn up @ag-grid-community/client-side-row-model@28.2.1 && \
     yarn up @ag-grid-community/core@28.2.1 && \
     yarn up @ag-grid-community/react@28.2.1
