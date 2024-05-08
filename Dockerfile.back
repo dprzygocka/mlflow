@@ -9,6 +9,7 @@ COPY . /home/mlflow
 
 RUN pip install -e . && \
     pip install duckdb_engine==0.12.0 && \
-    apt-get update && apt-get install -y net-tools
+    apt-get update && apt-get install -y net-tools && \
+    apt-get install lsof
 
 EXPOSE 5000
