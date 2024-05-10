@@ -5,7 +5,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const webpack = require('webpack');
 
 const proxyTarget = process.env.MLFLOW_PROXY;
-const useProxyServer = !proxyTarget && !process.env.MLFLOW_DEV_PROXY_MODE;
+const useProxyServer = !!proxyTarget && !process.env.MLFLOW_DEV_PROXY_MODE;
 
 const isDevserverWebsocketRequest = (request) =>
   request.url === '/ws' && (request.headers.upgrade === 'websocket' || request.headers['sec-websocket-version']);

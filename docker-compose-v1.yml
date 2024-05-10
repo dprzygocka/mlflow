@@ -24,7 +24,6 @@ services:
     entrypoint: >
       /bin/sh -c " /usr/bin/mc alias set minio http://minio:9000 minio_user minio_password && /usr/bin/mc mb minio/mlflow-storage; exit 0; "
 
-
   mlflow_server:
     image: mlflow_server
     container_name: mlflow_server
@@ -39,7 +38,7 @@ services:
     command:
       - /bin/bash
       - -c
-      - mlflow server --backend-store-uri "duckdb:///test.db" --host 0.0.0.0 --port 5000 --default-artifact-root s3://mlflow-storage/
+      - mlflow server --backend-store-uri "duckdb:///s12.db" --host 0.0.0.0 --default-artifact-root s3://mlflow-storage/ --workers 1
     restart: always
 
   mlflow_ui:
@@ -48,16 +47,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-      AWS_ACCESS_KEY_ID: minio_user
-      AWS_SECRET_ACCESS_KEY: minio_password
-      MLFLOW_PROXY: http://0.0.0.0:5000
+      MLFLOW_TRACKING_URI: http://mlflow_server:5000
+      MLFLOW_PROXY: http://mlflow_server:5000
+      MLFLOW_DEV_PROXY_MODE: http://mlflow_server:5000
     command:
       - /bin/bash
       - -c
       - cd mlflow/server/js && yarn start
     restart: always
-
 volumes:
   duckdb_data:
   minio_data:
