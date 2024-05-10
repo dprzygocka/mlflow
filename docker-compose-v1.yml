@@ -40,6 +40,21 @@ services:
       - -c
       - mlflow server --backend-store-uri "duckdb:///s12.db" --host 0.0.0.0 --default-artifact-root s3://mlflow-storage/ --workers 1
     restart: always
+
+  mlflow_ui:
+    image: mlflow_ui
+    container_name: mlflow_ui
+    ports:
+      - "3000:3000"
+    environment:
+      MLFLOW_TRACKING_URI: http://0.0.0.0:5000
+      MLFLOW_PROXY: http://0.0.0.0:5000
+      MLFLOW_DEV_PROXY_MODE: http://0.0.0.0:5000
+    command:
+      - /bin/bash
+      - -c
+      - cd mlflow/server/js && yarn start
+    restart: always
 volumes:
   duckdb_data:
   minio_data:
