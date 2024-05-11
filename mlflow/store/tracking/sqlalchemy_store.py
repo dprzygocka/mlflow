@@ -246,6 +246,7 @@ class SqlAlchemyStore(AbstractStore):
         return append_to_uri_path(self.artifact_root_uri, str(experiment_id))
 
     def create_experiment(self, name, artifact_location=None, tags=None):
+        print('create_experiment')
         _validate_experiment_name(name)
         if artifact_location:
             artifact_location = resolve_uri_if_local(artifact_location)
@@ -460,6 +461,7 @@ class SqlAlchemyStore(AbstractStore):
             session.add(experiment)
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):
+        print('create run')
         with self.ManagedSessionMaker() as session:
             experiment = self.get_experiment(experiment_id)
             self._check_experiment_is_active(experiment)
@@ -697,6 +699,7 @@ class SqlAlchemyStore(AbstractStore):
 
     def log_metric(self, run_id, metric):
         # simply call _log_metrics and let it handle the rest
+        print('log metric')
         self._log_metrics(run_id, [metric])
 
     def _log_metrics(self, run_id, metrics):
@@ -1043,6 +1046,7 @@ class SqlAlchemyStore(AbstractStore):
             ]
 
     def log_param(self, run_id, param):
+        print('log param')
         param = _validate_param(param.key, param.value)
         with self.ManagedSessionMaker() as session:
             run = self._get_run(run_uuid=run_id, session=session)
@@ -1091,6 +1095,7 @@ class SqlAlchemyStore(AbstractStore):
                     raise
 
     def _log_params(self, run_id, params):
+        print('log params')
         if not params:
             return
 
@@ -1379,6 +1384,7 @@ class SqlAlchemyStore(AbstractStore):
             session.merge(SqlTag(key=MLFLOW_LOGGED_MODELS, value=value, run_uuid=run_id))
 
     def log_inputs(self, run_id: str, datasets: Optional[List[DatasetInput]] = None):
+        print('log inputs')
         """
         Log inputs, such as datasets, to the specified run.
 
