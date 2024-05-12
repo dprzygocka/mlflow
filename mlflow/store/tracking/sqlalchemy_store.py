@@ -248,6 +248,7 @@ class SqlAlchemyStore(AbstractStore):
     def create_experiment(self, name, artifact_location=None, tags=None):
         print('create_experiment')
         _validate_experiment_name(name)
+        calc = True
         if artifact_location:
             artifact_location = resolve_uri_if_local(artifact_location)
         with self.ManagedSessionMaker() as session:
@@ -269,12 +270,19 @@ class SqlAlchemyStore(AbstractStore):
                     eid = session.query(SqlExperiment).filter_by(name=name).first().experiment_id
                     experiment.artifact_location = self._get_artifact_location(eid)
             except sqlalchemy.exc.IntegrityError as e:
+                calc = True
                 raise MlflowException(
                     f"Experiment(name={name}) already exists. Error: {e}",
                     RESOURCE_ALREADY_EXISTS,
                 )
 
             session.flush()
+            if calc and creation_time:
+                stop_time = get_current_time_millis()
+                dif_time = stop_time - creation_time
+                with open('experiment.txt', 'w') as f:
+                    # Write some value to the file
+                    f.write(f'{dif_time}\n')
             return str(experiment.experiment_id)
 
     def _search_experiments(
