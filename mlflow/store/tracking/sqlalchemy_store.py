@@ -279,7 +279,7 @@ class SqlAlchemyStore(AbstractStore):
             if creation_time:
                 stop_time = get_current_time_millis()
                 dif_time = stop_time - creation_time
-                with open('experiment.txt', 'w') as f:
+                with open('experiment.txt', 'a') as f:
                     # Write some value to the file
                     f.write(f'{dif_time}\n')
             return str(experiment.experiment_id)
@@ -516,7 +516,7 @@ class SqlAlchemyStore(AbstractStore):
             if creation_time:
                 stop_time = get_current_time_millis()
                 dif_time = stop_time - creation_time
-                with open('runs.txt', 'w') as f:
+                with open('runs.txt', 'a') as f:
                     # Write some value to the file
                     f.write(f'{dif_time}\n')
             return returnEl
@@ -789,7 +789,7 @@ class SqlAlchemyStore(AbstractStore):
         if creation_time:
             stop_time = get_current_time_millis()
             dif_time = stop_time - creation_time
-            with open('_log_metrics.txt', 'w') as f:
+            with open('_log_metrics.txt', 'a') as f:
                 # Write some value to the file
                 f.write(f'{dif_time}\n')
 
@@ -1120,7 +1120,7 @@ class SqlAlchemyStore(AbstractStore):
         if creation_time:
             stop_time = get_current_time_millis()
             dif_time = stop_time - creation_time
-            with open('log_param.txt', 'w') as f:
+            with open('log_param.txt', 'a') as f:
                 # Write some value to the file
                 f.write(f'{dif_time}\n')
         
@@ -1165,7 +1165,7 @@ class SqlAlchemyStore(AbstractStore):
         if creation_time:
             stop_time = get_current_time_millis()
             dif_time = stop_time - creation_time
-            with open('_log_params.txt', 'w') as f:
+            with open('_log_params.txt', 'a') as f:
                 # Write some value to the file
                 f.write(f'{dif_time}\n')
 
