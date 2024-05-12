@@ -18,3 +18,10 @@ ENV AWS_ACCESS_KEY_ID=minio_user
 ENV AWS_SECRET_ACCESS_KEY=minio_password
 
 EXPOSE 5000
+
+# Set the command to run MLflow server
+CMD ["python", "-m", "mlflow", "server", \
+    "--backend-store-uri", "duckdb:///duck.db", \
+    "--host", "0.0.0.0", \
+    "--default-artifact-root", "s3://mlflow-storage/", \
+    "--workers", "1"]
