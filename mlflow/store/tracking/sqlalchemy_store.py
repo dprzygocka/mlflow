@@ -789,7 +789,7 @@ class SqlAlchemyStore(AbstractStore):
         if creation_time:
             stop_time = get_current_time_millis()
             dif_time = stop_time - creation_time
-            with open('runs.txt', 'w') as f:
+            with open('_log_metrics.txt', 'w') as f:
                 # Write some value to the file
                 f.write(f'{dif_time}\n')
 
