@@ -341,18 +341,20 @@ def create_sqlalchemy_engine(db_uri):
         _logger.info("Create SQLAlchemy engine with pool options %s", pool_kwargs)
 
     import re
-    pattern = r'[^/]+$'
-    match = re.search(pattern, db_uri)
-    file_name = match.group(0)
-    free = is_port_in_use(5000)
-    if free:
-        duckdb_pid = find_duckdb_process(file_name)
-        while duckdb_pid is not None:
-            if duckdb_pid is not None:
-                # Kill the DuckDB process
-                kill_process(duckdb_pid)
-                print("DuckDB process killed.")
-            else:
-                print("No DuckDB process found.")
+    initPatter = r"duckdb"
+    if re.search(initPatter, db_uri):
+        pattern = r'[^/]+$'
+        match = re.search(pattern, db_uri)
+        file_name = match.group(0)
+        free = is_port_in_use(5000)
+        if free:
             duckdb_pid = find_duckdb_process(file_name)
+            while duckdb_pid is not None:
+                if duckdb_pid is not None:
+                    # Kill the DuckDB process
+                    kill_process(duckdb_pid)
+                    print("DuckDB process killed.")
+                else:
+                    print("No DuckDB process found.")
+                duckdb_pid = find_duckdb_process(file_name)
     return sqlalchemy.create_engine(db_uri, pool_pre_ping=True, **pool_kwargs)
