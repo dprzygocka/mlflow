@@ -27,6 +27,7 @@ def migrate(engine: Engine, revision: str) -> None:
         alembic_cfg.attributes["connection"] = conn
         upgrade(alembic_cfg, revision)
 
+
 def migrate_if_needed(engine: Engine, revision: str) -> None:
     alembic_cfg = _get_alembic_config(engine.url.render_as_string(hide_password=False))
     script_dir = ScriptDirectory.from_config(alembic_cfg)

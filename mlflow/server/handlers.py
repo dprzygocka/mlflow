@@ -271,7 +271,7 @@ def _get_proxied_run_artifact_destination_path(proxied_artifact_root, relative_p
     )
 
 
-def _get_tracking_store(backend_store_uri=None, default_artifact_root=None, method=None):
+def _get_tracking_store(backend_store_uri=None, default_artifact_root=None):
     from mlflow.server import ARTIFACT_ROOT_ENV_VAR, BACKEND_STORE_URI_ENV_VAR
 
     global _tracking_store
@@ -1242,7 +1242,9 @@ def search_datasets_handler():
             ),
             error_code=INVALID_PARAMETER_VALUE,
         )
+
     store = _get_tracking_store()
+
     if hasattr(store, "_search_datasets"):
         return {
             "dataset_summaries": [
