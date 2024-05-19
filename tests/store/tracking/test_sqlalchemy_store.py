@@ -2778,6 +2778,7 @@ def test_upgrade_cli_idempotence(store: SqlAlchemyStore):
     for _ in range(3):
         invoke_cli_runner(mlflow.db.commands, ["upgrade", store.db_uri])
         assert _get_schema_version(engine) == _get_latest_schema_revision()
+    engine.dispose()
 
 
 def test_metrics_materialization_upgrade_succeeds_and_produces_expected_latest_metric_values(
