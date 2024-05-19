@@ -24,7 +24,7 @@ def upgrade():
         sa.Column(
             "name",
             sa.String(length=256),
-            sa.ForeignKey("registered_models.name", onupdate="RESTRICT"),
+            sa.ForeignKey("registered_models.name", onupdate="cascade"),
             primary_key=True,
             nullable=False,
         ),
