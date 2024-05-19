@@ -1,6 +1,5 @@
 import logging
 import os
-import socket
 import time
 from contextlib import contextmanager
 
@@ -8,7 +7,6 @@ import sqlalchemy
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import sql
-from sqlalchemy import create_engine, inspect
 
 # We need to import sqlalchemy.pool to convert poolclass string to class object
 from sqlalchemy.pool import (
@@ -91,8 +89,6 @@ def _all_tables_exist(engine):
 def _initialize_tables(engine):
     _logger.info("Creating initial MLflow database tables...")
     InitialBase.metadata.create_all(engine)
-    inspector = inspect(engine)
-    table_names = inspector.get_table_names()
     _upgrade_db(engine)
 
 
@@ -207,13 +203,10 @@ def _upgrade_db(engine):
     """
     # alembic adds significant import time, so we import it lazily
     from alembic import command
-    from alembic.ddl.impl import DefaultImpl
-
 
     db_url = str(engine.url)
     _logger.info("Updating database tables")
     config = _get_alembic_config(db_url)
-
     # Initialize a shared connection to be used for the database upgrade, ensuring that
     # any connection-dependent state (e.g., the state of an in-memory database) is preserved
     # for reference by the upgrade routine. For more information, see
@@ -225,8 +218,6 @@ def _upgrade_db(engine):
 
 
 def _get_schema_version(engine):
-    from alembic.ddl.impl import DefaultImpl
-
     with engine.connect() as connection:
         mc = MigrationContext.configure(connection)
         return mc.get_current_revision()
