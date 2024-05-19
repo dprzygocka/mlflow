@@ -200,7 +200,6 @@ def _get_permission_from_experiment_id_artifact_proxy() -> Permission:
 
 
 def _get_permission_from_experiment_name() -> Permission:
-    print('_get_permission_from_experiment_name')
     experiment_name = _get_request_param("experiment_name")
     store_exp = _get_tracking_store().get_experiment_by_name(experiment_name)
     if store_exp is None:
@@ -215,7 +214,6 @@ def _get_permission_from_experiment_name() -> Permission:
 
 
 def _get_permission_from_run_id() -> Permission:
-    print('_get_permission_from_run_id')
     # run permissions inherit from parent resource (experiment)
     # so we just get the experiment permission
     run_id = _get_request_param("run_id")
@@ -505,7 +503,6 @@ def set_can_manage_registered_model_permission(resp: Response):
 
 
 def filter_search_experiments(resp: Response):
-    print('filter_search_experiments')
     if sender_is_admin():
         return
 
@@ -892,6 +889,7 @@ def create_app(app: Flask = app):
     # secret key required for flashing
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
+
     store.init_db(auth_config.database_uri)
     create_admin_user(auth_config.admin_username, auth_config.admin_password)
 

@@ -47,8 +47,6 @@ class MLflowTrackingRestApi:
         """Get all experiments."""
         url = self.base_url + "/experiments/search"
         r = requests.get(url)
-        print('search_experiments')
-        print(r)
         experiments = None
         if r.status_code == 200:
             experiments = r.json()["experiments"]
