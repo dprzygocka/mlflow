@@ -462,6 +462,7 @@ class SqlAlchemyStore(AbstractStore):
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):
         with self.ManagedSessionMaker() as session:
+            creation_time = get_current_time_millis()
             experiment = self.get_experiment(experiment_id)
             self._check_experiment_is_active(experiment)
 
@@ -503,8 +504,14 @@ class SqlAlchemyStore(AbstractStore):
 
             run.tags = [SqlTag(key=tag.key, value=tag.value) for tag in tags]
             session.add(run)
-
-            return run.to_mlflow_entity()
+            returnEl = run.to_mlflow_entity()
+            if creation_time:
+                stop_time = get_current_time_millis()
+                dif_time = stop_time - creation_time
+                with open('runs.txt', 'a') as f:
+                    # Write some value to the file
+                    f.write(f'{dif_time}\n')
+            return returnEl
 
     def _get_run(self, session, run_uuid, eager=False):
         """
@@ -701,6 +708,7 @@ class SqlAlchemyStore(AbstractStore):
         self._log_metrics(run_id, [metric])
 
     def _log_metrics(self, run_id, metrics):
+        creation_time = get_current_time_millis()
         if not metrics:
             return
 
@@ -768,6 +776,13 @@ class SqlAlchemyStore(AbstractStore):
                     # if there exist metrics that were tried to be logged & rolled back even
                     # though they were not violating the PK, log them
                     _insert_metrics(non_existing_metrics)
+
+        if creation_time:
+            stop_time = get_current_time_millis()
+            dif_time = stop_time - creation_time
+            with open('_log_metrics.txt', 'a') as f:
+                # Write some value to the file
+                f.write(f'{dif_time}\n')
 
     def _update_latest_metrics_if_necessary(self, logged_metrics, session):
         def _compare_metrics(metric_a, metric_b):
@@ -1043,6 +1058,7 @@ class SqlAlchemyStore(AbstractStore):
             ]
 
     def log_param(self, run_id, param):
+        creation_time = get_current_time_millis()
         param = _validate_param(param.key, param.value)
         with self.ManagedSessionMaker() as session:
             run = self._get_run(run_uuid=run_id, session=session)
@@ -1089,8 +1105,16 @@ class SqlAlchemyStore(AbstractStore):
                         )
                 else:
                     raise
+        
+        if creation_time:
+            stop_time = get_current_time_millis()
+            dif_time = stop_time - creation_time
+            with open('log_param.txt', 'a') as f:
+                # Write some value to the file
+                f.write(f'{dif_time}\n')
 
     def _log_params(self, run_id, params):
+        creation_time = get_current_time_millis()
         if not params:
             return
 
@@ -1124,6 +1148,13 @@ class SqlAlchemyStore(AbstractStore):
                 return
 
             session.add_all(new_params)
+
+        if creation_time:
+            stop_time = get_current_time_millis()
+            dif_time = stop_time - creation_time
+            with open('_log_params.txt', 'a') as f:
+                # Write some value to the file
+                f.write(f'{dif_time}\n')
 
     def set_experiment_tag(self, experiment_id, tag):
         """
