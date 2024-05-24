@@ -1,0 +1,6191 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.3 (Debian 16.3-1.pgdg120+1)
+-- Dumped by pg_dump version 16.3 (Debian 16.3-1.pgdg120+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO mlflow_user;
+
+--
+-- Name: datasets; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.datasets (
+    dataset_uuid character varying(36) NOT NULL,
+    experiment_id integer NOT NULL,
+    name character varying(500) NOT NULL,
+    digest character varying(36) NOT NULL,
+    dataset_source_type character varying(36) NOT NULL,
+    dataset_source text NOT NULL,
+    dataset_schema text,
+    dataset_profile text
+);
+
+
+ALTER TABLE public.datasets OWNER TO mlflow_user;
+
+--
+-- Name: experiment_tags; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.experiment_tags (
+    key character varying(250) NOT NULL,
+    value character varying(5000),
+    experiment_id integer NOT NULL
+);
+
+
+ALTER TABLE public.experiment_tags OWNER TO mlflow_user;
+
+--
+-- Name: experiments; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.experiments (
+    experiment_id integer NOT NULL,
+    name character varying(256) NOT NULL,
+    artifact_location character varying(256),
+    lifecycle_stage character varying(32),
+    creation_time bigint,
+    last_update_time bigint,
+    CONSTRAINT experiments_lifecycle_stage CHECK (((lifecycle_stage)::text = ANY ((ARRAY['active'::character varying, 'deleted'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.experiments OWNER TO mlflow_user;
+
+--
+-- Name: experiments_experiment_id_seq; Type: SEQUENCE; Schema: public; Owner: mlflow_user
+--
+
+CREATE SEQUENCE public.experiments_experiment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.experiments_experiment_id_seq OWNER TO mlflow_user;
+
+--
+-- Name: experiments_experiment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mlflow_user
+--
+
+ALTER SEQUENCE public.experiments_experiment_id_seq OWNED BY public.experiments.experiment_id;
+
+
+--
+-- Name: input_tags; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.input_tags (
+    input_uuid character varying(36) NOT NULL,
+    name character varying(255) NOT NULL,
+    value character varying(500) NOT NULL
+);
+
+
+ALTER TABLE public.input_tags OWNER TO mlflow_user;
+
+--
+-- Name: inputs; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.inputs (
+    input_uuid character varying(36) NOT NULL,
+    source_type character varying(36) NOT NULL,
+    source_id character varying(36) NOT NULL,
+    destination_type character varying(36) NOT NULL,
+    destination_id character varying(36) NOT NULL
+);
+
+
+ALTER TABLE public.inputs OWNER TO mlflow_user;
+
+--
+-- Name: latest_metrics; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.latest_metrics (
+    key character varying(250) NOT NULL,
+    value double precision NOT NULL,
+    "timestamp" bigint,
+    step bigint NOT NULL,
+    is_nan boolean NOT NULL,
+    run_uuid character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.latest_metrics OWNER TO mlflow_user;
+
+--
+-- Name: metrics; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.metrics (
+    key character varying(250) NOT NULL,
+    value double precision NOT NULL,
+    "timestamp" bigint NOT NULL,
+    run_uuid character varying(32) NOT NULL,
+    step bigint DEFAULT '0'::bigint NOT NULL,
+    is_nan boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.metrics OWNER TO mlflow_user;
+
+--
+-- Name: model_version_tags; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.model_version_tags (
+    key character varying(250) NOT NULL,
+    value character varying(5000),
+    name character varying(256) NOT NULL,
+    version integer NOT NULL
+);
+
+
+ALTER TABLE public.model_version_tags OWNER TO mlflow_user;
+
+--
+-- Name: model_versions; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.model_versions (
+    name character varying(256) NOT NULL,
+    version integer NOT NULL,
+    creation_time bigint,
+    last_updated_time bigint,
+    description character varying(5000),
+    user_id character varying(256),
+    current_stage character varying(20),
+    source character varying(500),
+    run_id character varying(32),
+    status character varying(20),
+    status_message character varying(500),
+    run_link character varying(500),
+    storage_location character varying(500)
+);
+
+
+ALTER TABLE public.model_versions OWNER TO mlflow_user;
+
+--
+-- Name: params; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.params (
+    key character varying(250) NOT NULL,
+    value character varying(8000) NOT NULL,
+    run_uuid character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.params OWNER TO mlflow_user;
+
+--
+-- Name: registered_model_aliases; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.registered_model_aliases (
+    alias character varying(256) NOT NULL,
+    version integer NOT NULL,
+    name character varying(256) NOT NULL
+);
+
+
+ALTER TABLE public.registered_model_aliases OWNER TO mlflow_user;
+
+--
+-- Name: registered_model_tags; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.registered_model_tags (
+    key character varying(250) NOT NULL,
+    value character varying(5000),
+    name character varying(256) NOT NULL
+);
+
+
+ALTER TABLE public.registered_model_tags OWNER TO mlflow_user;
+
+--
+-- Name: registered_models; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.registered_models (
+    name character varying(256) NOT NULL,
+    creation_time bigint,
+    last_updated_time bigint,
+    description character varying(5000)
+);
+
+
+ALTER TABLE public.registered_models OWNER TO mlflow_user;
+
+--
+-- Name: runs; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.runs (
+    run_uuid character varying(32) NOT NULL,
+    name character varying(250),
+    source_type character varying(20),
+    source_name character varying(500),
+    entry_point_name character varying(50),
+    user_id character varying(256),
+    status character varying(9),
+    start_time bigint,
+    end_time bigint,
+    source_version character varying(50),
+    lifecycle_stage character varying(20),
+    artifact_uri character varying(200),
+    experiment_id integer,
+    deleted_time bigint,
+    CONSTRAINT runs_lifecycle_stage CHECK (((lifecycle_stage)::text = ANY ((ARRAY['active'::character varying, 'deleted'::character varying])::text[]))),
+    CONSTRAINT runs_status_check CHECK (((status)::text = ANY ((ARRAY['SCHEDULED'::character varying, 'FAILED'::character varying, 'FINISHED'::character varying, 'RUNNING'::character varying, 'KILLED'::character varying])::text[]))),
+    CONSTRAINT source_type CHECK (((source_type)::text = ANY ((ARRAY['NOTEBOOK'::character varying, 'JOB'::character varying, 'LOCAL'::character varying, 'UNKNOWN'::character varying, 'PROJECT'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.runs OWNER TO mlflow_user;
+
+--
+-- Name: tags; Type: TABLE; Schema: public; Owner: mlflow_user
+--
+
+CREATE TABLE public.tags (
+    key character varying(250) NOT NULL,
+    value character varying(5000),
+    run_uuid character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.tags OWNER TO mlflow_user;
+
+--
+-- Name: experiments experiment_id; Type: DEFAULT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.experiments ALTER COLUMN experiment_id SET DEFAULT nextval('public.experiments_experiment_id_seq'::regclass);
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+acf3f17fdcc7
+\.
+
+
+--
+-- Data for Name: datasets; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.datasets (dataset_uuid, experiment_id, name, digest, dataset_source_type, dataset_source, dataset_schema, dataset_profile) FROM stdin;
+\.
+
+
+--
+-- Data for Name: experiment_tags; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.experiment_tags (key, value, experiment_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: experiments; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.experiments (experiment_id, name, artifact_location, lifecycle_stage, creation_time, last_update_time) FROM stdin;
+0	Default	s3://mlflow-storage/0	active	1716283566999	1716283566999
+\.
+
+
+--
+-- Data for Name: input_tags; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.input_tags (input_uuid, name, value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: inputs; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.inputs (input_uuid, source_type, source_id, destination_type, destination_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: latest_metrics; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.latest_metrics (key, value, "timestamp", step, is_nan, run_uuid) FROM stdin;
+SMI - Power Draw	14.94	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+SMI - Timestamp	1716283801.441	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+SMI - GPU Util	0	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+SMI - Mem Util	0	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+SMI - Mem Used	0	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+SMI - Performance State	0	1716283801455	0	f	055d82fc50514637ad3c6270a92fb211
+TOP - CPU Utilization	104	1716285157095	0	f	055d82fc50514637ad3c6270a92fb211
+TOP - Memory Usage GB	1.9413	1716285157095	0	f	055d82fc50514637ad3c6270a92fb211
+TOP - Memory Utilization	8.1	1716285157095	0	f	055d82fc50514637ad3c6270a92fb211
+TOP - Swap Memory GB	0.0005	1716285157109	0	f	055d82fc50514637ad3c6270a92fb211
+\.
+
+
+--
+-- Data for Name: metrics; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.metrics (key, value, "timestamp", run_uuid, step, is_nan) FROM stdin;
+SMI - Power Draw	14.94	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+SMI - Timestamp	1716283801.441	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+SMI - GPU Util	0	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+SMI - Mem Util	0	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+SMI - Mem Used	0	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+SMI - Performance State	0	1716283801455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	0	1716283801518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	0	1716283801518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.2195	1716283801518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283801532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	153.39999999999998	1716283802520	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.7	1716283802520	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.2195	1716283802520	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283802534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283803522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	2.5	1716283803522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.2195	1716283803522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283803535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283804524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283804524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4523	1716283804524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283804546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283805526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283805526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4523	1716283805526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283805547	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283806528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283806528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4523	1716283806528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283806541	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283807530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283807530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4547	1716283807530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283807552	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283808532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283808532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4547	1716283808532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283808553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283809534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283809534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4547	1716283809534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283809555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283810536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283810536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4543	1716283810536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283810557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283811538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283811538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4543	1716283811538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283811550	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283812540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283812540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4543	1716283812540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283812560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283813542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283813542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4539000000000002	1716283813542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283813563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283814543	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283814543	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4539000000000002	1716283814543	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283814564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283815545	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283815545	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4539000000000002	1716283815545	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283815559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283816561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283817570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283818572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283819574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283820569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283821570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283822580	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283823580	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283824583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283825578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283826579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284128146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284128146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8798	1716284128146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284129148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284129148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8782	1716284129148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284130150	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284130150	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8782	1716284130150	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284131151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284131151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8782	1716284131151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284132152	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284132152	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785999999999998	1716284132152	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284133154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284133154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785999999999998	1716284133154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284134156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284134156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785999999999998	1716284134156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284135158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284135158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284135158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284136160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284136160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284136160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284137162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284137162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284137162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284138164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284138164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8805999999999998	1716284138164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284139166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284139166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8805999999999998	1716284139166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284140168	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284140168	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8805999999999998	1716284140168	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284141170	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284141170	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284141170	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284142172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284142172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284142172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284143173	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284143173	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284143173	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284144175	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284144175	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284144175	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284145177	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283816547	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283816547	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4542	1716283816547	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283817549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283817549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4542	1716283817549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283818551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283818551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4542	1716283818551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283819553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283819553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4532	1716283819553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283820555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283820555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4532	1716283820555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283821557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283821557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4532	1716283821557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283822559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283822559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4536	1716283822559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283823560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283823560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4536	1716283823560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283824563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283824563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.4536	1716283824563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283825565	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283825565	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.6356	1716283825565	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283826567	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283826567	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.6356	1716283826567	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283827569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283827569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.6356	1716283827569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283827582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283828570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	2.5	1716283828570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8619	1716283828570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283828592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283829572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283829572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8619	1716283829572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283829594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283830574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283830574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8619	1716283830574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283830596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283831576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283831576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8628	1716283831576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283831597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283832578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283832578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8628	1716283832578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283832593	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283833580	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283833580	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8628	1716283833580	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283833599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283834581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283834581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283834581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283834602	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283835606	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283836607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283837601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283838610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283839612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283840615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283841615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283842617	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283843619	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283844624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283845623	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283846625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283847619	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283848631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283849635	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283850637	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283851634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283852629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283853638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283854641	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283855649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283856639	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283857651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283858650	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283859652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283860653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283861649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283862656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283863660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283864663	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283865664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283866658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283867669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283868671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283869672	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283870674	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283871667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283872676	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283873680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283874680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283875682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283876685	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283877682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283878684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283879692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283880693	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283881692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283882688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283883698	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283884701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283885702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283886697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284128219	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284129162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284130165	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284131166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284132166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284133246	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284134172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284135172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284136176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284137176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284138177	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284139181	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283835583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283835583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283835583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283836585	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283836585	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283836585	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283837587	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283837587	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283837587	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283838589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283838589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283838589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283839591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283839591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283839591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283840592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283840592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8682	1716283840592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283841594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283841594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8682	1716283841594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283842596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283842596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8682	1716283842596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283843598	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283843598	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283843598	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283844600	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283844600	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283844600	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283845601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283845601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283845601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283846603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283846603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716283846603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283847605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283847605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716283847605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283848607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283848607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716283848607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283849609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283849609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8567	1716283849609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283850611	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283850611	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8567	1716283850611	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283851613	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283851613	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8567	1716283851613	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283852615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283852615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8596	1716283852615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283853617	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283853617	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8596	1716283853617	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283854620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283854620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8596	1716283854620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283855624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283855624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8585999999999998	1716283855624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283856625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283856625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8585999999999998	1716283856625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283857627	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283857627	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8585999999999998	1716283857627	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283858629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283858629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8635	1716283858629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283859631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283859631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8635	1716283859631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283860632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283860632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8635	1716283860632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283861634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283861634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8614000000000002	1716283861634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283862636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283862636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8614000000000002	1716283862636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283863638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283863638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8614000000000002	1716283863638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283864640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283864640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8603	1716283864640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283865641	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283865641	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8603	1716283865641	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283866643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283866643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8603	1716283866643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283867646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283867646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8642999999999998	1716283867646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283868647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283868647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8642999999999998	1716283868647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283869649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283869649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8642999999999998	1716283869649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283870651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283870651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.862	1716283870651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283871652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283871652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.862	1716283871652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283872654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283872654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.862	1716283872654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283873656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283873656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8638	1716283873656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283874658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283874658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8638	1716283874658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283875660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283875660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8638	1716283875660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283876662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283876662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8605	1716283876662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283877663	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283877663	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8605	1716283877663	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	106	1716283878665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.500000000000001	1716283878665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8605	1716283878665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283879667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283879667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8636	1716283879667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283880669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283880669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8636	1716283880669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283881671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283881671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8636	1716283881671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283882673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.4	1716283882673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283882673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283883675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.1000000000000005	1716283883675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283883675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283884677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283884677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283884677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283885680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283885680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8640999999999999	1716283885680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283886682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283886682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8640999999999999	1716283886682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283887684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283887684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8640999999999999	1716283887684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283887705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283888686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283888686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283888686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283888707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283889688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283889688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283889688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283889710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283890690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283890690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8653	1716283890690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283890710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283891692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283891692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8588	1716283891692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283891714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283892694	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283892694	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8588	1716283892694	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283892707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283893697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283893697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8588	1716283893697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283893720	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283894699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283894699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8617000000000001	1716283894699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283894717	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283895701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283895701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8617000000000001	1716283895701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283895723	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283896703	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283896703	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8617000000000001	1716283896703	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283897705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283897705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625	1716283897705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283898706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283898706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625	1716283898706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283899708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283899708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625	1716283899708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283900710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283900710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8627	1716283900710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283901712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283901712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8627	1716283901712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283902714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283902714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8627	1716283902714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283903716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283903716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8631	1716283903716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283904718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283904718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8631	1716283904718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283905719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283905719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8631	1716283905719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283906721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283906721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283906721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283907724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283907724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283907724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283908726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283908726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283908726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283909728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283909728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283909728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283910730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283910730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283910730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283911731	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283911731	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8657000000000001	1716283911731	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283912733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283912733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8647	1716283912733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283913734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283913734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8647	1716283913734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283914736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283914736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8647	1716283914736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283915738	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283915738	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8644	1716283915738	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283916740	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283916740	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8644	1716283916740	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283917742	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283896726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283897718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283898728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283899729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283900733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283901733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283902736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283903739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283904738	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283905742	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283906745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283907739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283908750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283909752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283910752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283911753	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283912747	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283913755	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283914757	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283915760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283916761	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283917766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283918765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283919766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283920768	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283921834	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283922765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283923774	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283924769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283925778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283926783	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283927777	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283928784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283929785	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283930833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283931789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283932790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283933792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283934795	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283935797	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283936798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283937792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283938793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283939803	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283940806	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283941809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283942802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283943803	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283944810	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283945818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283946813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284140182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284141187	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284142186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284143209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284144190	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284145193	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284146196	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284147195	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284148196	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284149197	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284150200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284151203	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284152203	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284153207	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283917742	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8644	1716283917742	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283918743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283918743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8656	1716283918743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283919745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283919745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8656	1716283919745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283920747	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283920747	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8656	1716283920747	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283921749	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283921749	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8669	1716283921749	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283922751	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283922751	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8669	1716283922751	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	109	1716283923752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283923752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8669	1716283923752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283924754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283924754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8678	1716283924754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283925756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283925756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8678	1716283925756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283926758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283926758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8678	1716283926758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283927760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283927760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8668	1716283927760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283928762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283928762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8668	1716283928762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283929764	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283929764	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8668	1716283929764	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283930766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283930766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283930766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283931768	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283931768	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283931768	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	107	1716283932769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.199999999999999	1716283932769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283932769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283933771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283933771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8665999999999998	1716283933771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283934773	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283934773	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8665999999999998	1716283934773	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283935775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283935775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8665999999999998	1716283935775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	99	1716283936777	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283936777	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283936777	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283937779	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283937779	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283937779	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283938781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283938781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8648	1716283938781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283939782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283939782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8662999999999998	1716283939782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283940784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283940784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8662999999999998	1716283940784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283941786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283941786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8662999999999998	1716283941786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283942788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283942788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283942788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283943790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283943790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283943790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283944791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283944791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283944791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283945793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283945793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283945793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283946794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283946794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283946794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283947796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283947796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8689	1716283947796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283947822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283948798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283948798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8685	1716283948798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283948819	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283949800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283949800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8685	1716283949800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283949821	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283950802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283950802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8685	1716283950802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283950815	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716283951804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283951804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8693	1716283951804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283951818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283952805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283952805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8693	1716283952805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283952830	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283953807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283953807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8693	1716283953807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283953829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283954809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283954809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283954809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283954822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283955811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283955811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283955811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283955833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283956813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283956813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8679000000000001	1716283956813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283956826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283957837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283958838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283959833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283960837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283961836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283962846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283963848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283964850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283965851	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283966853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283967846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283968856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283969851	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283970853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283971856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283972858	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283973867	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283974870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283975870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283976866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283977869	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283978873	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283979870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283980878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283981879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283982875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283983883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283984878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283985887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283986890	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283987884	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283988887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283989895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283990898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283991893	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283992893	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283993905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283994900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283995910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283996910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283997905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283998913	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716283999918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284000910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284001923	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284002915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284003924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284004925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284005930	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284006929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284145177	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284145177	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284146179	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284146179	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284146179	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284147181	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284147181	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284147181	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284148182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284148182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284148182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284149184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284149184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284149184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283957815	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283957815	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625999999999998	1716283957815	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283958817	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283958817	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625999999999998	1716283958817	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283959818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283959818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8625999999999998	1716283959818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283960820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283960820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283960820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283961822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283961822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283961822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283962824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283962824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8652	1716283962824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283963826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283963826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283963826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283964828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283964828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283964828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283965830	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283965830	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283965830	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283966831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283966831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8713	1716283966831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283967833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283967833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8713	1716283967833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283968835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283968835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8713	1716283968835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283969837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283969837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.87	1716283969837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283970839	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283970839	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.87	1716283970839	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283971841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283971841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.87	1716283971841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283972842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283972842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702	1716283972842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283973844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283973844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702	1716283973844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716283974846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283974846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702	1716283974846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283975848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283975848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8696	1716283975848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283976850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283976850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8696	1716283976850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283977852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716283977852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8696	1716283977852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283978853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283978853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8697000000000001	1716283978853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283979855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283979855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8697000000000001	1716283979855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	99	1716283980857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283980857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8697000000000001	1716283980857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283981859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283981859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283981859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283982861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283982861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283982861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283983862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283983862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8680999999999999	1716283983862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716283984864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283984864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283984864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283985866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283985866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283985866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283986868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283986868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.868	1716283986868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283987870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283987870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8694000000000002	1716283987870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283988872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.199999999999999	1716283988872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8694000000000002	1716283988872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283989874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283989874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8694000000000002	1716283989874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283990876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283990876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702999999999999	1716283990876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283991878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283991878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702999999999999	1716283991878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283992880	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283992880	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8702999999999999	1716283992880	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283993883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283993883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8707	1716283993883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283994885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283994885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8707	1716283994885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283995887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283995887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8707	1716283995887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716283996889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283996889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716283996889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283997891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283997891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716283997891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716283998892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716283998892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716283998892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716283999895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716283999895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8715	1716283999895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284000897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284000897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8715	1716284000897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284001898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284001898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8715	1716284001898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284002900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284002900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8673	1716284002900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284003902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284003902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8673	1716284003902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284004904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284004904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8673	1716284004904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284005906	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284005906	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284005906	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284006908	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284006908	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284006908	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284007910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284007910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284007910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284007931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284008912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284008912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284008912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284008933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284009914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284009914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284009914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284009935	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284010915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284010915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284010915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284010938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284011917	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284011917	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284011917	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284011933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284012919	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284012919	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284012919	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284012942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284013921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284013921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284013921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284013943	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284014924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284014924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284014924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284014944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284015925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284015925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284015925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284015947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284016927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284016927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8709	1716284016927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284016941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284017929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.2	1716284017929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284017929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284018931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.5	1716284018931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284018931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284019932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284019932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284019932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284020934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284020934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8717000000000001	1716284020934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284021936	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284021936	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8717000000000001	1716284021936	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284022938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284022938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8717000000000001	1716284022938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284023940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284023940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8722	1716284023940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284024942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284024942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8722	1716284024942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284025945	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284025945	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8722	1716284025945	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284026947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284026947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8712	1716284026947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284027949	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284027949	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8712	1716284027949	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284028952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284028952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8712	1716284028952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284029955	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284029955	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8735	1716284029955	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284030957	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284030957	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8735	1716284030957	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284031959	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284031959	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8735	1716284031959	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284032961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284032961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8728	1716284032961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284033963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284033963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8728	1716284033963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284034965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284034965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8728	1716284034965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284035967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284035967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284035967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284036969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284036969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284036969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284037971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284037971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745	1716284037971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284038973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284038973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8736	1716284038973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284017958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284018945	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284019957	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284020956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284021957	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284022961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284023962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284024964	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284025966	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284026962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284027973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284028971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284029976	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284030975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284031974	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284032978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284033977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284034981	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284035989	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284036983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284037983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284038987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284039987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284040989	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284041991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284042995	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284044003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284045005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284046010	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284047007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284048004	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284049010	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284050006	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284051009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284052011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284053012	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284054021	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284055024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284056026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284057023	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284058032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284059035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284060033	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284061029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284062030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284063040	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284064043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284065046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284066047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284067042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284150186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284150186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284150186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284151188	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284151188	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284151188	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284152190	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284152190	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284152190	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284153192	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284153192	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284153192	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284154194	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284154194	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284154194	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284039974	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284039974	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8736	1716284039974	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284040976	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284040976	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8736	1716284040976	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284041978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284041978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284041978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284042980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284042980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284042980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284043982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284043982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284043982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284044983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284044983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284044983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284045986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284045986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284045986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284046987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284046987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.873	1716284046987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284047989	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284047989	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716284047989	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284048991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284048991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716284048991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284049993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284049993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8687	1716284049993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284050994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284050994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284050994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284051996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284051996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284051996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284052998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284052998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8731	1716284052998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284054000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284054000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8749	1716284054000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284055003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284055003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8749	1716284055003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284056005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284056005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8749	1716284056005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284057007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284057007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284057007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284058009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284058009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284058009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284059011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284059011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284059011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284060013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284060013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8742	1716284060013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284061014	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284061014	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8742	1716284061014	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284062016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284062016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8742	1716284062016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284063018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284063018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745999999999998	1716284063018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284064020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284064020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745999999999998	1716284064020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284065022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284065022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8745999999999998	1716284065022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284066025	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284066025	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8757000000000001	1716284066025	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284067027	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284067027	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8757000000000001	1716284067027	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284068029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284068029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8757000000000001	1716284068029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284068050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284069031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284069031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284069031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284069057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284070032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284070032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284070032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284070054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284071034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284071034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8708	1716284071034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284071057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284072036	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284072036	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8738	1716284072036	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284072050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284073038	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284073038	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8738	1716284073038	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284073059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284074040	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284074040	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8738	1716284074040	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284074064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284075042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284075042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284075042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284075066	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284076044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284076044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284076044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284076057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284077045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284077045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8739000000000001	1716284077045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284077062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284078047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284078047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8765999999999998	1716284078047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284078070	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284079051	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284079051	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8765999999999998	1716284079051	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284080052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284080052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8765999999999998	1716284080052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284081054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284081054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8759000000000001	1716284081054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284082056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284082056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8759000000000001	1716284082056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284083058	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284083058	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8759000000000001	1716284083058	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284084060	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284084060	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284084060	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284085062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284085062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284085062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284086063	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284086063	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284086063	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284087065	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284087065	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785	1716284087065	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284088067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284088067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785	1716284088067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284089069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284089069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8785	1716284089069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284090071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284090071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284090071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284091073	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284091073	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284091073	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284092075	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284092075	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8794000000000002	1716284092075	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284093077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284093077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284093077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284094079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284094079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284094079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284095081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284095081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284095081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284096083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284096083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284096083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284097085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284097085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284097085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284098088	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284098088	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8768	1716284098088	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284099090	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284099090	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8762	1716284099090	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284100092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284079072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284080073	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284081075	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284082077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284083080	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284084081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284085082	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284086085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284087082	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284088088	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284089092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284090093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284091093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284092102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284093099	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284094095	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284095095	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284096097	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284097102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284098104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284099293	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284100113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284101183	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284102115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284103113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284104115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284105118	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284106117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284107126	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284108122	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284109123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284110126	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284111146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284112129	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284113130	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284114133	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284115136	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284116137	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284117141	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284118142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284119143	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284120149	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284121146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284122149	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284123152	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284124154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284125155	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284126157	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284127163	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284154208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284155212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284156213	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284157213	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284158217	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284159218	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284160220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284161222	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284162223	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284163225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284164229	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284165229	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284166233	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284167233	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284168236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284169238	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284100092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8762	1716284100092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284101094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284101094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8762	1716284101094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284102096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284102096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284102096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284103098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284103098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284103098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284104100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284104100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8764	1716284104100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284105101	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284105101	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8774000000000002	1716284105101	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284106104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284106104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8774000000000002	1716284106104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284107105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284107105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8774000000000002	1716284107105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284108107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284108107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8792	1716284108107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284109109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284109109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8792	1716284109109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284110112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284110112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8792	1716284110112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284111113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284111113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284111113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284112115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284112115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284112115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284113117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284113117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8788	1716284113117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284114119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284114119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284114119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284115121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284115121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284115121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284116123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284116123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284116123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284117125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284117125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284117125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284118127	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284118127	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284118127	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284119129	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284119129	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284119129	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284120131	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284120131	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8767	1716284120131	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284121132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284121132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8767	1716284121132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284122134	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284122134	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8767	1716284122134	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284123136	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284123136	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.878	1716284123136	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284124138	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284124138	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.878	1716284124138	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284125140	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284125140	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.878	1716284125140	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284126142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284126142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8798	1716284126142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284127144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284127144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8798	1716284127144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284155196	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284155196	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284155196	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284156198	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284156198	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284156198	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284157200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284157200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284157200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284158202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284158202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284158202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284159204	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284159204	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284159204	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284160206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284160206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284160206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284161208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284161208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284161208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284162210	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284162210	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284162210	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284163212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284163212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284163212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284164213	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284164213	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8793	1716284164213	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284165215	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284165215	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8771	1716284165215	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284166217	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284166217	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8771	1716284166217	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284167219	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284167219	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8771	1716284167219	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284168221	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284168221	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284168221	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284169223	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284169223	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284169223	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284170225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284170225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8802	1716284170225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284171226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284171226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284171226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284172228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284172228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284172228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284173230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284173230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8800999999999999	1716284173230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284174232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.6	1716284174232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284174232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284175234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3	1716284175234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284175234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284176236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284176236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284176236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284177237	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284177237	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.883	1716284177237	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284178239	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284178239	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.883	1716284178239	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284179241	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284179241	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.883	1716284179241	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284180243	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284180243	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284180243	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284181245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284181245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284181245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284182247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284182247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8816	1716284182247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284183248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284183248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284183248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284184250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284184250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284184250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284185252	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284185252	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284185252	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284186253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284186253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8795	1716284186253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284187254	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284187254	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8795	1716284187254	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284547939	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284547939	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9033	1716284547939	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284548941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284548941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9033	1716284548941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284549942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284549942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042999999999999	1716284549942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284550944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284170239	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284171242	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284172243	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284173248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284174248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284175248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284176250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284177254	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284178252	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284179257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284180257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284181262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284182262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284183261	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284184264	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284185266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284186266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284187268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284188256	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284188256	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8795	1716284188256	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284188270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284189258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284189258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8814000000000002	1716284189258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284189272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284190260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284190260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8814000000000002	1716284190260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284190276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284191262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284191262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8814000000000002	1716284191262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284191276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284192264	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284192264	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284192264	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284192279	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284193266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284193266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284193266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284193281	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284194268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284194268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8804	1716284194268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284194285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284195270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284195270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.882	1716284195270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284195284	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284196272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284196272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.882	1716284196272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284196286	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284197274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284197274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.882	1716284197274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284197288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284198276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284198276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8835	1716284198276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284198289	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284199278	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284199278	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8835	1716284199278	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284199291	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284200294	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284201295	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284202297	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284203299	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284204302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284205304	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284206307	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284207305	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284208309	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284209311	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284210315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284211319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284212320	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284213319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284214320	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284215321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284216325	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284217324	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284218331	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284219329	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284220338	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284221340	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284222335	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284223388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284224346	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284225345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284226346	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284227349	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284228351	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284229361	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284230364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284231364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284232368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284233359	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284234368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284235370	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284236372	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284237367	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284238368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284239378	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284240379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284241383	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284242376	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284243379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284244385	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284245390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284246392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284247387	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284547963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284548963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284549956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284550966	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284551959	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284552962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284553971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284554964	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284555967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284556979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284557971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284558980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284559974	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284560984	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284561987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284562988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284200280	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284200280	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8835	1716284200280	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284201282	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284201282	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8844	1716284201282	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284202283	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284202283	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8844	1716284202283	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284203285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284203285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8844	1716284203285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284204288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284204288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8847	1716284204288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284205290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284205290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8847	1716284205290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284206291	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284206291	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8847	1716284206291	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284207292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284207292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8854000000000002	1716284207292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284208295	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284208295	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8854000000000002	1716284208295	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284209296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284209296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8854000000000002	1716284209296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284210299	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284210299	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.88	1716284210299	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284211301	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284211301	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.88	1716284211301	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284212302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284212302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.88	1716284212302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284213304	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284213304	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284213304	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284214306	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284214306	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284214306	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284215308	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284215308	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284215308	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284216310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284216310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.881	1716284216310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284217312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284217312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.881	1716284217312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284218313	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284218313	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.881	1716284218313	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284219315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284219315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284219315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284220317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284220317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284220317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284221319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284221319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8818	1716284221319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284222321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284222321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284222321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284223323	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284223323	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284223323	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284224326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284224326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284224326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284225330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284225330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284225330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284226332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284226332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284226332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284227334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284227334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284227334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284228336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284228336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284228336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284229338	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.4	1716284229338	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284229338	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284230339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284230339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284230339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284231342	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284231342	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284231342	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284232344	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284232344	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284232344	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284233345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284233345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8829	1716284233345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	99	1716284234347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284234347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8832	1716284234347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284235350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284235350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8832	1716284235350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284236352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284236352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8832	1716284236352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284237354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284237354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8852	1716284237354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284238355	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284238355	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8852	1716284238355	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284239357	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284239357	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8852	1716284239357	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284240358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284240358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284240358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284241360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284241360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284241360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284242362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284242362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8840999999999999	1716284242362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284243364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284243364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8820999999999999	1716284243364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284244366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284244366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8820999999999999	1716284244366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284245368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284245368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8820999999999999	1716284245368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284246370	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284246370	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8828	1716284246370	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284247372	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284247372	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8828	1716284247372	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284248373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284248373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8828	1716284248373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284248388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284249375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284249375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8836	1716284249375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284249397	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284250377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284250377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8836	1716284250377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284250398	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284251379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284251379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8836	1716284251379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284251399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284252381	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284252381	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8815	1716284252381	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284252394	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284253382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284253382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8815	1716284253382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284253396	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284254384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284254384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8815	1716284254384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284254406	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284255386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284255386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284255386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284255409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284256388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284256388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284256388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284256409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284257390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284257390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8811	1716284257390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284257405	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284258392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284258392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284258392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284258413	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284259394	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284259394	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284259394	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284259415	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284260396	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284260396	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.884	1716284260396	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284261398	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284261398	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284261398	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284262399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284262399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284262399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284263401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284263401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284263401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284264402	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284264402	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8851	1716284264402	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284265404	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284265404	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8851	1716284265404	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284266406	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284266406	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8851	1716284266406	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284267408	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284267408	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284267408	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284268410	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284268410	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284268410	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284269412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284269412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284269412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284270414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284270414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284270414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284271416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284271416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284271416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284272418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284272418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284272418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284273420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284273420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8868	1716284273420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284274421	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284274421	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8868	1716284274421	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284275422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284275422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8868	1716284275422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284276424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284276424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8879000000000001	1716284276424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284277426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284277426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8879000000000001	1716284277426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284278428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284278428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8879000000000001	1716284278428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284279430	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284279430	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284279430	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284280431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284280431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284280431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284281434	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284260419	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284261424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284262421	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284263424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284264424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284265426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284266428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284267426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284268423	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284269425	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284270428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284271433	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284272431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284273434	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284274437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284275436	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284276440	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284277440	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284278442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284279444	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284280445	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284281456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284282451	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284283458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284284453	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284285455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284286455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284287458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284288464	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284289472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284290474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284291465	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284292473	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284293476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284294479	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284295483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284296486	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284297479	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284298490	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284299490	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284300491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284301493	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284302490	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284303496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284304500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284305503	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284306495	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284307504	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284550944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042999999999999	1716284550944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284551946	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284551946	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042999999999999	1716284551946	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284552948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284552948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042000000000001	1716284552948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284553950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284553950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042000000000001	1716284553950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284554952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284554952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9042000000000001	1716284554952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716284555954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284555954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9057	1716284555954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284281434	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8827	1716284281434	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284282436	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284282436	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.885	1716284282436	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284283437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284283437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.885	1716284283437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284284439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284284439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.885	1716284284439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284285441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284285441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284285441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284286442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284286442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284286442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284287445	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284287445	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8833	1716284287445	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284288447	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284288447	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284288447	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284289449	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284289449	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284289449	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284290451	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284290451	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8858	1716284290451	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284291452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284291452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8876	1716284291452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284292454	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284292454	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8876	1716284292454	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284293456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284293456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8876	1716284293456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284294458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284294458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8901	1716284294458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284295460	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284295460	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8901	1716284295460	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284296462	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284296462	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8901	1716284296462	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284297465	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284297465	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8911	1716284297465	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284298467	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284298467	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8911	1716284298467	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284299469	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284299469	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8911	1716284299469	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284300471	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284300471	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8867	1716284300471	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284301472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284301472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8867	1716284301472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284302474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284302474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8867	1716284302474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284303476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284303476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8864	1716284303476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284304478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284304478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8864	1716284304478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284305480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284305480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8864	1716284305480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284306482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284306482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865	1716284306482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284307483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284307483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865	1716284307483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284308485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284308485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865	1716284308485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284308507	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284309487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284309487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284309487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284309511	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284310489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284310489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284310489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284310510	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284311491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284311491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284311491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284311517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284312493	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284312493	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284312493	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284312509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284313495	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284313495	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284313495	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284313515	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284314496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284314496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8871	1716284314496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284314517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284315499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284315499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284315499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284315523	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284316500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284316500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284316500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284316527	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284317502	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284317502	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284317502	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284317522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284318505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284318505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865999999999998	1716284318505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284318529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284319507	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284319507	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865999999999998	1716284319507	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284319530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284320509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.3999999999999995	1716284320509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8865999999999998	1716284320509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284321512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.699999999999999	1716284321512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284321512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284322513	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284322513	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284322513	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284323515	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284323515	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8873	1716284323515	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284324517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284324517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8904	1716284324517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284325519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284325519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8904	1716284325519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284326521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284326521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8904	1716284326521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284327522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284327522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8925	1716284327522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284328524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284328524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8925	1716284328524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284329526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284329526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8925	1716284329526	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284330528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284330528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284330528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284331530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284331530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284331530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284332532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284332532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284332532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284333534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284333534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.892	1716284333534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284334535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284334535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.892	1716284334535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284335537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284335537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.892	1716284335537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284336539	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284336539	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8929	1716284336539	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284337541	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284337541	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8929	1716284337541	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284338542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284338542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8929	1716284338542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284339544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284339544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8939000000000001	1716284339544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284340546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284340546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8939000000000001	1716284340546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284341548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284320532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284321525	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284322528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284323537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284324537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284325540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284326544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284327535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284328546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284329547	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284330549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284331552	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284332546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284333555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284334559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284335561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284336554	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284337563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284338564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284339567	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284340559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284341570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284342567	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284343576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284344568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284345583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284346579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284347581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284348583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284349585	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284350586	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284351596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284352589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284353598	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284354593	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284355594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284356599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284357591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284358603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284359595	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284360607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284361605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284362603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284363613	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284364612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284365614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284366607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284367609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284368618	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284369622	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284370622	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284371620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284372621	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284373629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284374623	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284375631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284376627	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284377635	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284378636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284379642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284380641	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284381636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284382645	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284383646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284384648	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284341548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8939000000000001	1716284341548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284342550	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284342550	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8896	1716284342550	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284343552	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284343552	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8896	1716284343552	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284344554	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284344554	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8896	1716284344554	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284345555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284345555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8932	1716284345555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284346557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284346557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8932	1716284346557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284347559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284347559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8932	1716284347559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284348561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284348561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284348561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284349563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284349563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284349563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284350564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284350564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284350564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284351566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284351566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8937	1716284351566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284352568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284352568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8937	1716284352568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284353570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284353570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8937	1716284353570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284354572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284354572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284354572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284355574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284355574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284355574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284356576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284356576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8944	1716284356576	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284357578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284357578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8945999999999998	1716284357578	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284358579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284358579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8945999999999998	1716284358579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284359581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	2.9	1716284359581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8945999999999998	1716284359581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284360582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284360582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.894	1716284360582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284361584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284361584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.894	1716284361584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284362588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284362588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.894	1716284362588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284363589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284363589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8952	1716284363589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284364591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284364591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8952	1716284364591	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284365592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284365592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8952	1716284365592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284366594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284366594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8921	1716284366594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284367596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284367596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8921	1716284367596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284368597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284368597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8921	1716284368597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284369599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284369599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284369599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284370601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284370601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284370601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284371602	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284371602	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8924	1716284371602	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284372604	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284372604	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8947	1716284372604	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284373606	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284373606	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8947	1716284373606	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284374608	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284374608	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8947	1716284374608	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284375610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284375610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284375610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284376612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284376612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284376612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284377614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284377614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284377614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284378616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284378616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284378616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284379618	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284379618	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284379618	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284380620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284380620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284380620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284381622	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284381622	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284381622	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284382624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284382624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284382624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284383626	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284383626	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8948	1716284383626	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284384628	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284384628	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.897	1716284384628	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284385630	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284385630	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.897	1716284385630	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284386631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284386631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.897	1716284386631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284387632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284387632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8985	1716284387632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284388634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284388634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8985	1716284388634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	98	1716284389636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284389636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8985	1716284389636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284390638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284390638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284390638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284391640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284391640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284391640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284392642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284392642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284392642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284393643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284393643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8968	1716284393643	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284394645	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284394645	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8968	1716284394645	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284395647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284395647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8968	1716284395647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284396649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284396649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284396649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284397651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284397651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284397651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284398653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284398653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284398653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284399654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284399654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284399654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284400656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284400656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284400656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284401658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284401658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8962999999999999	1716284401658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284402660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284402660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8954000000000002	1716284402660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284403662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284403662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8954000000000002	1716284403662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284404664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284404664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8954000000000002	1716284404664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284405666	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284385652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284386653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284387646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284388657	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284389652	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284390660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284391661	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284392656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284393658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284394667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284395662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284396664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284397664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284398680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284399676	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284400669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284401672	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284402674	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284403683	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284404677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284405687	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284406688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284407692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284408692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284409696	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284410698	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284411697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284412699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284413701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284414709	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284415707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284416708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284417702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284418712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284419705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284420714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284421718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284422712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284423719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284424713	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284425725	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284426720	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284556956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284556956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9057	1716284556956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284557958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284557958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9057	1716284557958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284558960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284558960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9044	1716284558960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284559961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284559961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9044	1716284559961	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284560963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284560963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9044	1716284560963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284561965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284561965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284561965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284562967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284562967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284562967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284563969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284563969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284405666	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284405666	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284406667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284406667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284406667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284407669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284407669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284407669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284408671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284408671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8967	1716284408671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284409673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284409673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8967	1716284409673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284410675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284410675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8967	1716284410675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284411677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284411677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284411677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284412679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284412679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284412679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284413680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284413680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.896	1716284413680	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284414682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284414682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284414682	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284415684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284415684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284415684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284416686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284416686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284416686	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284417688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284417688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8956	1716284417688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284418690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284418690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8956	1716284418690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284419692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284419692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8956	1716284419692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284420693	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284420693	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8974000000000002	1716284420693	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284421695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284421695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8974000000000002	1716284421695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284422697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284422697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8974000000000002	1716284422697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284423699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284423699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8969	1716284423699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284424701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284424701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8969	1716284424701	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284425702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284425702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8969	1716284425702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284426704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284426704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284426704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284427707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284427707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284427707	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284427722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284428709	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284428709	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284428709	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284428729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284429711	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284429711	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8977	1716284429711	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284429726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284430712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284430712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8977	1716284430712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284430733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284431714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.8	1716284431714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8977	1716284431714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284431729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284432716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.5	1716284432716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8982999999999999	1716284432716	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284432732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284433718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284433718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8982999999999999	1716284433718	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284433740	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284434720	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284434720	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8982999999999999	1716284434720	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284434734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284435722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284435722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8941	1716284435722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284435744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284436724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284436724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8941	1716284436724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284436738	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284437726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284437726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8941	1716284437726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284437747	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284438728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284438728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8959000000000001	1716284438728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284438744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284439729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284439729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8959000000000001	1716284439729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284439744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284440732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6	1716284440732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8959000000000001	1716284440732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284440754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284441736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284441736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284441736	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284441750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284442737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284442737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284442737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284442758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284443762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284444756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284445766	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284446772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284447765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284448765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284449767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284450775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284451777	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284452774	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284453783	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284454779	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284455784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284456789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284457789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284458791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284459785	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284460793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284461793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284462797	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284463794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284464794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284465805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284466799	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284467807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284468810	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284469807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284470813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284471816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284472818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284473820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284474819	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284475822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284476817	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284477825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284478820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284479821	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284480833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284481826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284482836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284483837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284484831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284485840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284486836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284487837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284488847	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284489842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284490852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284491846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284492857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284493850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284494852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284495862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284496856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284497865	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284498868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284499863	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284500872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284501874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284502877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284503877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284504876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284505882	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284506874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284443739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.300000000000001	1716284443739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965999999999998	1716284443739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284444741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284444741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8981	1716284444741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284445743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284445743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8981	1716284445743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284446746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284446746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8981	1716284446746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284447748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284447748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284447748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284448750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284448750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284448750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284449752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284449752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284449752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284450754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284450754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9022999999999999	1716284450754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284451756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284451756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9022999999999999	1716284451756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284452758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284452758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9022999999999999	1716284452758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284453760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284453760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.901	1716284453760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284454762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284454762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.901	1716284454762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284455763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284455763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.901	1716284455763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284456765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284456765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9002999999999999	1716284456765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284457767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284457767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9002999999999999	1716284457767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284458769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284458769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9002999999999999	1716284458769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284459772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284459772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284459772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284460772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284460772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284460772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284461775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284461775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284461775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284462776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284462776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284462776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284463778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284463778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284463778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284464781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284464781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8971	1716284464781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284465783	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284465783	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8984	1716284465783	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284466785	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284466785	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8984	1716284466785	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284467787	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284467787	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8984	1716284467787	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284468789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284468789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284468789	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284469791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284469791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284469791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284470792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284470792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284470792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284471794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284471794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9008	1716284471794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284472796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284472796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9008	1716284472796	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284473798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284473798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9008	1716284473798	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284474800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284474800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8987	1716284474800	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284475801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284475801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8987	1716284475801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284476802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284476802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8987	1716284476802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284477804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284477804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284477804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284478806	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284478806	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284478806	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284479808	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284479808	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284479808	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284480810	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284480810	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284480810	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284481812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284481812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284481812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284482814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284482814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8975	1716284482814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284483816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284483816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284483816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284484818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284484818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284484818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284485820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284485820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8991	1716284485820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284486823	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284486823	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284486823	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284487825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284487825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284487825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284488827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284488827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284488827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284489828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284489828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284489828	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284490831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284490831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284490831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284491833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284491833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284491833	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284492835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284492835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9025999999999998	1716284492835	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284493837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284493837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9025999999999998	1716284493837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284494838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284494838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9025999999999998	1716284494838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284495840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284495840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9018	1716284495840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284496842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284496842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9018	1716284496842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284497844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284497844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9018	1716284497844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284498846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284498846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9015	1716284498846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284499848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284499848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9015	1716284499848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284500850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284500850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9015	1716284500850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284501852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284501852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.899	1716284501852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284502854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284502854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.899	1716284502854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284503856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284503856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.899	1716284503856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284504857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284504857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284504857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284505859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284505859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284505859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284506861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284506861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284506861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284507862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284507862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284507862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284508864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284508864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284508864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284509866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284509866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9007	1716284509866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284510868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284510868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8989	1716284510868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284511870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.300000000000001	1716284511870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8989	1716284511870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284512872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284512872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8989	1716284512872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284513874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284513874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9004	1716284513874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284514876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284514876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9004	1716284514876	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284515878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284515878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9004	1716284515878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284516879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284516879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8996	1716284516879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284517881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284517881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8996	1716284517881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284518883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284518883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8996	1716284518883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284519885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284519885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284519885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284520887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284520887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284520887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284521889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284521889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9001	1716284521889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284522891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284522891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284522891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284523894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284523894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284523894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284524896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284524896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8965	1716284524896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284525898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284525898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8993	1716284525898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284526900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284526900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8993	1716284526900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284527902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284527902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8993	1716284527902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284528904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284507883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284508887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284509879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284510892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284511885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284512898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284513897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284514891	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284515899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284516892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284517902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284518896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284519898	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284520910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284521902	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284522906	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284523907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284524909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284525911	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284526915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284527924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284528925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284529919	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284530930	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284531930	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284532931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284533933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284534927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284535939	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284536933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284537941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284538942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284539936	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284540946	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284541940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284542952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284543955	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284544950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284545956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284546950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284563969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284564971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284564971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8891	1716284564971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284565973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284565973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8891	1716284565973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284566975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284566975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8891	1716284566975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284567977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284567977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9036	1716284567977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284568978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284568978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9036	1716284568978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284569980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284569980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9036	1716284569980	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284570982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284570982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.905	1716284570982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284571984	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284571984	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.905	1716284571984	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284528904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9021	1716284528904	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284529905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284529905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9021	1716284529905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284530907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284530907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9021	1716284530907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284531909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284531909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9039000000000001	1716284531909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284532911	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284532911	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9039000000000001	1716284532911	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284533912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284533912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9039000000000001	1716284533912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284534914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284534914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9013	1716284534914	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284535916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284535916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9013	1716284535916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284536918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284536918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9013	1716284536918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284537920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284537920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9045	1716284537920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284538921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284538921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9045	1716284538921	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284539923	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284539923	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9045	1716284539923	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284540925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284540925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9041	1716284540925	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284541927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284541927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9041	1716284541927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284542929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284542929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9041	1716284542929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284543931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284543931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284543931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284544933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	5.9	1716284544933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284544933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284545935	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284545935	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.8992	1716284545935	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284546937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.6000000000000005	1716284546937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9033	1716284546937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284563990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284564984	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284565994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284566988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284567997	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284568999	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284569993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284571003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284571998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284573008	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284574009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284575003	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284576013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284577015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284578019	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284579020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284580024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284581024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284582027	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284583020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284584029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284585030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284586024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284587034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284588028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284589037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284590039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284591041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284592043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284593043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284594040	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284595051	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284596051	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284597053	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284598047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284599056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284600058	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284601060	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284602065	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284603056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284604066	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284605060	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284606069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284607071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284608074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284609075	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284610077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284611078	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284612081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284613077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284614087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284615084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284616087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284617090	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284618084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284619093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284620087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284621092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284622099	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284623100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284624102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284625106	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284626106	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284627112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284628103	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284629113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284630113	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284631116	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284632117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284633112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284634114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284635115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284636124	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284572986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284572986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.905	1716284572986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284573988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284573988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284573988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284574990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284574990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284574990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284575992	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284575992	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284575992	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284576994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284576994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284576994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284577996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284577996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284577996	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284578998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284578998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9073	1716284578998	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284580000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.699999999999999	1716284580000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9048	1716284580000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284581002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284581002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9048	1716284581002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284582004	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284582004	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9048	1716284582004	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284583005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.699999999999999	1716284583005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9085	1716284583005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284584007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284584007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9085	1716284584007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284585009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284585009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9085	1716284585009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284586011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284586011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9034	1716284586011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284587013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284587013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9034	1716284587013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284588015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284588015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284588015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284589017	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284589017	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284589017	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284590019	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284590019	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284590019	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284591020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284591020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284591020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284592022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284592022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284592022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284593024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284593024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284593024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284594026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284594026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9081	1716284594026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284595028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284595028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9081	1716284595028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284596030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284596030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9081	1716284596030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284597032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284597032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284597032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284598034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284598034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284598034	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284599035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284599035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284599035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284600037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284600037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9091	1716284600037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284601039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284601039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9091	1716284601039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284602041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284602041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9091	1716284602041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284603043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284603043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284603043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284604045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284604045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284604045	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284605046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284605046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284605046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284606048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284606048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284606048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284607050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284607050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284607050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284608052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284608052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284608052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284609054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284609054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284609054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284610056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284610056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284610056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284611057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284611057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284611057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284612059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284612059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284612059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284613061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284613061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284613061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284614062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284614062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065	1716284614062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284615064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284615064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9076	1716284615064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284616066	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284616066	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9076	1716284616066	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284617068	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284617068	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9076	1716284617068	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284618070	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284618070	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284618070	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284619072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284619072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284619072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284620074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284620074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9075	1716284620074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284621076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284621076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9108	1716284621076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284622077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284622077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9108	1716284622077	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284623079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284623079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9108	1716284623079	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284624081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284624081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9109	1716284624081	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284625083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284625083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9109	1716284625083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284626085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284626085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9109	1716284626085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284627087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284627087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9027	1716284627087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284628089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284628089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9027	1716284628089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284629091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716284629091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9027	1716284629091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284630092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284630092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284630092	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284631094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284631094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284631094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284632096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284632096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9054	1716284632096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284633098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284633098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9064	1716284633098	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284634100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284634100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9064	1716284634100	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284635102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284635102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9064	1716284635102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284636104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284636104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9077	1716284636104	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284637105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284637105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9077	1716284637105	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284638107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284638107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9077	1716284638107	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284639109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284639109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082999999999999	1716284639109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284640112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284640112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082999999999999	1716284640112	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284641114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284641114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082999999999999	1716284641114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284642115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284642115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284642115	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284643117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284643117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284643117	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284644119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284644119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.908	1716284644119	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284645121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284645121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9078	1716284645121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284646123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284646123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9078	1716284646123	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284647125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284647125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9078	1716284647125	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284648126	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284648126	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065999999999999	1716284648126	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284649128	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284649128	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065999999999999	1716284649128	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284650132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284650132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9065999999999999	1716284650132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284651135	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284651135	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9067	1716284651135	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284652137	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284652137	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9067	1716284652137	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284653139	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284653139	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9067	1716284653139	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284654141	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284654141	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284654141	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284655142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284655142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284655142	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284656144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284656144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9072	1716284656144	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284657146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284657146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284657146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284658148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284637121	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284638124	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284639132	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284640134	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284641134	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284642137	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284643130	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284644136	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284645146	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284646148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284647153	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284648140	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284649150	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284650153	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284651157	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284652150	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284653161	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284654163	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284655165	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284656167	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284657163	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284658170	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284659175	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284660174	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284661176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284662170	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284663179	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284664181	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284665184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284666185	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284667191	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285027850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285027850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285027850	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285028852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285028852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285028852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285029854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285029854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285029854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285030855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285030855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285030855	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285031857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285031857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285031857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285032859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285032859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285032859	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285033861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285033861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285033861	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285034862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285034862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285034862	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285035864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285035864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9372	1716285035864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285036866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285036866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9372	1716285036866	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285037868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285037868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9372	1716285037868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285038870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284658148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284658148	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284659151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284659151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9069	1716284659151	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284660153	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284660153	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9099000000000002	1716284660153	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284661154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284661154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9099000000000002	1716284661154	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284662156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284662156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9099000000000002	1716284662156	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284663158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284663158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9089	1716284663158	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284664160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284664160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9089	1716284664160	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284665162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284665162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9089	1716284665162	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284666164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284666164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284666164	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284667166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284667166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284667166	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284668167	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284668167	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284668167	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284668189	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284669169	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284669169	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9094	1716284669169	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284669191	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284670171	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284670171	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9094	1716284670171	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284670193	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284671172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284671172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9094	1716284671172	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284671186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284672174	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284672174	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284672174	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284672190	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284673176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284673176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284673176	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284673192	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284674178	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284674178	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284674178	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284674200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284675180	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284675180	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284675180	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284675203	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284676182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284676182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284676182	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284676202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284677200	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284678209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284679209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284680212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284681212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284682208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284683217	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284684218	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284685220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284686225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284687223	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284688220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284689229	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284690232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284691234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284692225	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284693228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284694237	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284695239	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284696242	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284697244	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284698247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284699251	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284700250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284701250	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284702253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284703248	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284704257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284705260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284706262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284707263	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284708264	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284709267	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284710269	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284711263	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284712266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284713277	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284714279	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284715280	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284716280	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284717274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284718276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284719285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284720286	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284721289	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284722285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284723295	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284724297	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284725297	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284726290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284727292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284728304	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284729309	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284730308	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284731312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284732305	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284733313	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284734320	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284735317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284736319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284737314	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284738325	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284739328	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284740329	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284677184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284677184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9079000000000002	1716284677184	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284678186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284678186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284678186	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284679187	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284679187	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284679187	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284680189	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284680189	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9095	1716284680189	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284681191	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284681191	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9107	1716284681191	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284682193	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284682193	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9107	1716284682193	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284683195	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284683195	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9107	1716284683195	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284684197	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284684197	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.911	1716284684197	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284685199	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284685199	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.911	1716284685199	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284686201	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284686201	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.911	1716284686201	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284687202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284687202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9104	1716284687202	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284688206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284688206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9104	1716284688206	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284689208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284689208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9104	1716284689208	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284690209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284690209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9139000000000002	1716284690209	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284691211	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284691211	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9139000000000002	1716284691211	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716284692212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284692212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9139000000000002	1716284692212	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284693214	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284693214	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9127	1716284693214	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284694216	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284694216	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9127	1716284694216	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284695218	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284695218	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9127	1716284695218	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284696220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284696220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082000000000001	1716284696220	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284697222	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284697222	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082000000000001	1716284697222	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284698224	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284698224	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9082000000000001	1716284698224	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284699226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284699226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9087	1716284699226	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284700228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284700228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9087	1716284700228	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284701230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284701230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9087	1716284701230	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284702232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284702232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9101	1716284702232	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284703234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284703234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9101	1716284703234	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284704236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284704236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9101	1716284704236	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284705238	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284705238	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9118	1716284705238	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284706240	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284706240	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9118	1716284706240	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284707242	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284707242	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9118	1716284707242	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284708244	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284708244	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.915	1716284708244	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284709245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284709245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.915	1716284709245	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284710247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6	1716284710247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.915	1716284710247	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284711249	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.7	1716284711249	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9155	1716284711249	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284712251	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284712251	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9155	1716284712251	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284713253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284713253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9155	1716284713253	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284714255	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284714255	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9147	1716284714255	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284715257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284715257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9147	1716284715257	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284716258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284716258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9147	1716284716258	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284717260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284717260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.913	1716284717260	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284718262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284718262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.913	1716284718262	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284719265	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284719265	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.913	1716284719265	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284720266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284720266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9145999999999999	1716284720266	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284721268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284721268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9145999999999999	1716284721268	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284722270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284722270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9145999999999999	1716284722270	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284723272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284723272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284723272	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284724274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284724274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284724274	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284725276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284725276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284725276	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284726277	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284726277	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.917	1716284726277	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284727279	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284727279	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.917	1716284727279	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284728281	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284728281	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.917	1716284728281	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284729285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284729285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9165	1716284729285	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284730286	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284730286	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9165	1716284730286	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284731288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284731288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9165	1716284731288	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284732290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284732290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284732290	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284733292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284733292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284733292	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284734294	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284734294	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9168	1716284734294	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284735296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284735296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9174	1716284735296	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284736298	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284736298	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9174	1716284736298	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284737300	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284737300	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9174	1716284737300	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284738302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284738302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284738302	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284739303	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284739303	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284739303	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716284740305	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.200000000000001	1716284740305	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284740305	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284741307	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284741307	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9133	1716284741307	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284742310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284742310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9133	1716284742310	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284743312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284743312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9133	1716284743312	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284744315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284744315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284744315	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284745317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284745317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284745317	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284746319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284746319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9136	1716284746319	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284747321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284747321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9172	1716284747321	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284748322	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284748322	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9172	1716284748322	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	105	1716284749324	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284749324	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9172	1716284749324	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284750326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284750326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9157	1716284750326	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284751328	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284751328	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9157	1716284751328	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284752330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284752330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9157	1716284752330	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284753332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284753332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9178	1716284753332	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284754334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284754334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9178	1716284754334	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284755336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284755336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9178	1716284755336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284756337	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284756337	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284756337	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284757339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284757339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284757339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284758341	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284758341	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284758341	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284759343	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284759343	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9204	1716284759343	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284760345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284760345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9204	1716284760345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284761347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284761347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9204	1716284761347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284762349	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284741322	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284742323	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284743336	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284744338	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284745339	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284746340	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284747335	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284748343	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284749345	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284750350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284751347	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284752346	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284753352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284754355	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284755357	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284756355	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284757361	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284758363	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284759366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284760367	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284761360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284762363	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284763373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284764376	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284765375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284766371	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284767372	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284768382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284769384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284770389	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284771381	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284772386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284773391	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284774393	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284775396	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284776388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284777390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284778401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284779402	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284780403	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284781399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284782400	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284783409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284784410	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284785412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284786407	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284787410	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285027865	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285028872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285029875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285030877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285031878	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285032875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285033884	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285034884	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285035881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285036887	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285037881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285038889	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285039896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285040896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285041896	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285042899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285043900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285044907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284762349	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284762349	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284763350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284763350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284763350	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284764352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284764352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9188	1716284764352	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284765354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284765354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9195	1716284765354	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284766356	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284766356	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9195	1716284766356	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284767358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284767358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9195	1716284767358	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284768360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284768360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9213	1716284768360	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284769362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284769362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9213	1716284769362	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284770364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284770364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9213	1716284770364	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284771366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284771366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9202000000000001	1716284771366	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284772368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284772368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9202000000000001	1716284772368	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284773369	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284773369	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9202000000000001	1716284773369	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284774371	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284774371	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9208	1716284774371	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284775373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284775373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9208	1716284775373	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284776375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284776375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9208	1716284776375	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284777377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284777377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284777377	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284778379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284778379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284778379	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284779380	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284779380	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284779380	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284780382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284780382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9228	1716284780382	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284781384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284781384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9228	1716284781384	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284782386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284782386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9228	1716284782386	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284783388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284783388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9212	1716284783388	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284784390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284784390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9212	1716284784390	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284785392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284785392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9212	1716284785392	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284786393	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284786393	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9245999999999999	1716284786393	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284787395	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284787395	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9245999999999999	1716284787395	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284788397	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284788397	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9245999999999999	1716284788397	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284788419	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284789399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284789399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9223	1716284789399	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284789419	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284790401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284790401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9223	1716284790401	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284790417	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284791403	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284791403	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9223	1716284791403	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284791418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284792405	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284792405	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9209	1716284792405	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284792422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284793407	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284793407	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9209	1716284793407	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284793429	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284794409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284794409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9209	1716284794409	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284794424	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284795411	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284795411	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9238	1716284795411	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284795431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284796412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284796412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9238	1716284796412	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284796426	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284797414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.5	1716284797414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9238	1716284797414	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284797428	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284798416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284798416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9227	1716284798416	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284798437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284799418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284799418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9227	1716284799418	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284799440	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284800420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284800420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9227	1716284800420	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284800434	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284801436	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284802437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284803446	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284804448	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284805451	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284806448	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284807447	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284808456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284809458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284810458	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284811454	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284812456	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284813466	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284814469	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284815468	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284816466	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284817475	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284818474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284819476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284820480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284821474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284822475	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284823486	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284824479	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284825492	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284826489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284827487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284828500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284829497	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284830500	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284831498	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284832507	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284833508	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284834509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284835511	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284836503	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284837505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284838514	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284839509	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284840517	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284841511	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284842521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284843522	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284844528	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284845529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284846524	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284847531	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284848533	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284849537	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284850535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284851529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284852530	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284853540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284854535	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284855543	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284856539	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284857541	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284858550	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284859554	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284860555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284861548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284862557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284863563	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284864560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284801422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284801422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9232	1716284801422	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284802423	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284802423	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9232	1716284802423	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284803425	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284803425	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9232	1716284803425	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284804427	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284804427	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284804427	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284805429	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284805429	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284805429	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284806431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284806431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284806431	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284807433	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284807433	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9221	1716284807433	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284808435	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284808435	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9221	1716284808435	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284809437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284809437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9221	1716284809437	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284810439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284810439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284810439	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284811441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284811441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284811441	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284812442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284812442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284812442	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284813444	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284813444	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284813444	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284814446	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284814446	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284814446	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284815448	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284815448	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9235	1716284815448	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284816450	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284816450	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9242000000000001	1716284816450	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284817452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284817452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9242000000000001	1716284817452	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284818453	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284818453	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9242000000000001	1716284818453	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284819455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284819455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9247	1716284819455	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284820457	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284820457	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9247	1716284820457	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284821459	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284821459	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9247	1716284821459	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284822461	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284822461	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9243	1716284822461	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284823463	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284823463	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9243	1716284823463	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284824466	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284824466	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9243	1716284824466	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284825468	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284825468	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9192	1716284825468	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284826470	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284826470	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9192	1716284826470	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284827472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284827472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9192	1716284827472	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284828474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.1	1716284828474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9224	1716284828474	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284829476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8	1716284829476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9224	1716284829476	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284830478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284830478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9224	1716284830478	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284831480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284831480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284831480	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284832482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284832482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284832482	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284833483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284833483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284833483	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284834485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284834485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284834485	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284835487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284835487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284835487	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284836489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284836489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284836489	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284837491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284837491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.922	1716284837491	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284838492	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284838492	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.922	1716284838492	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284839494	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284839494	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.922	1716284839494	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284840496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284840496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284840496	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284841497	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284841497	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284841497	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284842499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284842499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284842499	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284843501	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284843501	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9239000000000002	1716284843501	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284844503	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284844503	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9239000000000002	1716284844503	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284845505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284845505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9239000000000002	1716284845505	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284846506	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284846506	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284846506	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284847508	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284847508	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284847508	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284848510	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284848510	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284848510	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284849512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284849512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284849512	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284850514	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284850514	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284850514	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284851516	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284851516	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9230999999999998	1716284851516	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284852518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.299999999999999	1716284852518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9233	1716284852518	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284853519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284853519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9233	1716284853519	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284854521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284854521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9233	1716284854521	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284855523	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284855523	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284855523	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284856525	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284856525	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284856525	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284857527	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284857527	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9234	1716284857527	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284858529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284858529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284858529	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284859531	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284859531	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284859531	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284860532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284860532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284860532	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284861534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284861534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9262000000000001	1716284861534	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284862536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284862536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9262000000000001	1716284862536	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284863538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284863538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9262000000000001	1716284863538	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284864540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284864540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265999999999999	1716284864540	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284865542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284865542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265999999999999	1716284865542	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284866544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284866544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265999999999999	1716284866544	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284867546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284867546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284867546	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284868548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284868548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284868548	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284869549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284869549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.924	1716284869549	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284870551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284870551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225999999999999	1716284870551	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284871553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284871553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225999999999999	1716284871553	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284872555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284872555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225999999999999	1716284872555	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284873557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284873557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284873557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284874559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284874559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284874559	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284875561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284875561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9222000000000001	1716284875561	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284876562	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284876562	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9237	1716284876562	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284877564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284877564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9237	1716284877564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284878566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284878566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9237	1716284878566	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284879568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284879568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284879568	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284880570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284880570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284880570	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284881572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284881572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284881572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284882574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284882574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.926	1716284882574	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284883575	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284883575	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.926	1716284883575	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284884577	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284884577	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.926	1716284884577	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284885579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284885579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284885579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284886581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284865564	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284866557	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284867560	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284868569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284869571	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284870572	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284871569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284872569	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284873581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284874579	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284875583	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284876575	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284877577	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284878586	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284879589	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284880593	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284881587	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284882587	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284883601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284884599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284885601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284886594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284887595	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284888597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284889611	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284890609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284891605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284892605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284893615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284894609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284895624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284896618	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284897615	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284898626	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284899626	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284900628	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284901624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284902624	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284903636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284904639	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284905637	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284906632	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284907634	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285038870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9353	1716285038870	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285039872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285039872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9353	1716285039872	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285040874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285040874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9353	1716285040874	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716285041875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285041875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9374	1716285041875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285042877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285042877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9374	1716285042877	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285043879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285043879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9374	1716285043879	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285044881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285044881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285044881	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285045883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285045883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284886581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284886581	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284887582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284887582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284887582	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284888584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284888584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284888584	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284889586	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284889586	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284889586	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	99	1716284890588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284890588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9254	1716284890588	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284891590	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284891590	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9236	1716284891590	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284892592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284892592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9236	1716284892592	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284893594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284893594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9236	1716284893594	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284894596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284894596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225	1716284894596	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284895597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284895597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225	1716284895597	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284896599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284896599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9225	1716284896599	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284897601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284897601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284897601	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284898603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284898603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284898603	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284899605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284899605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9218	1716284899605	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284900607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284900607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267999999999998	1716284900607	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284901609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284901609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267999999999998	1716284901609	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284902610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284902610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267999999999998	1716284902610	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284903612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284903612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267	1716284903612	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284904614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284904614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267	1716284904614	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284905616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284905616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9267	1716284905616	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284906620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284906620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265	1716284906620	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284907621	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284907621	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265	1716284907621	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284908623	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284908623	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9265	1716284908623	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284908644	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284909625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284909625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716284909625	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284909647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284910629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284910629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716284910629	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284910651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284911631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284911631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716284911631	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284911644	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284912633	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284912633	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284912633	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284912647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284913635	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284913635	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284913635	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284913657	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284914636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284914636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9241	1716284914636	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284914657	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284915638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284915638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284915638	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284915659	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284916640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284916640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284916640	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284916654	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284917642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284917642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284917642	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284917655	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284918644	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284918644	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9273	1716284918644	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284918666	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284919646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284919646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9273	1716284919646	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284919668	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284920647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284920647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9273	1716284920647	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284920670	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284921649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284921649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9264000000000001	1716284921649	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284921663	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284922651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284922651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9264000000000001	1716284922651	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284922672	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284923653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284923653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9264000000000001	1716284923653	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284923673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284924679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284925679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284926673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284927684	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284928678	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284929688	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284930690	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284931683	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284932691	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284933694	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284934696	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284935699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284936692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284937696	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284938705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284939709	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284940710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284941705	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284942712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284943714	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284944717	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284945713	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284946715	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284947725	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284948723	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284949725	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284950726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284951722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284952732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284953732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284954737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284955737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284956729	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284957733	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284958743	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284959745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284960745	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284961739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284962744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284963754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284964753	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284965755	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284966748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284967754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284968760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284969762	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284970768	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284971759	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284972763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284973780	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284974775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284975778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284976770	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284977775	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284978776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284979786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284980784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284981778	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284982791	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284983794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284984793	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284985794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284986787	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284987790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284924656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284924656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284924656	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284925658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284925658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284925658	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284926660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284926660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9263	1716284926660	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284927662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284927662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9283	1716284927662	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284928664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284928664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9283	1716284928664	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284929665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284929665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9283	1716284929665	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284930667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284930667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9295	1716284930667	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284931669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284931669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9295	1716284931669	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284932671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284932671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9295	1716284932671	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284933673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284933673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9282000000000001	1716284933673	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284934675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284934675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9282000000000001	1716284934675	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284935677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284935677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9282000000000001	1716284935677	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284936679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284936679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9249	1716284936679	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284937681	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284937681	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9249	1716284937681	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284938683	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284938683	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9249	1716284938683	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284939685	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284939685	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284939685	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284940687	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284940687	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284940687	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284941689	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284941689	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284941689	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284942691	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284942691	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.928	1716284942691	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284943692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284943692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.928	1716284943692	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284944695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284944695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.928	1716284944695	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284945697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284945697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9299000000000002	1716284945697	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284946699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284946699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9299000000000002	1716284946699	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284947700	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284947700	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9299000000000002	1716284947700	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284948702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284948702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284948702	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284949704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284949704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284949704	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284950706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284950706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284950706	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284951708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284951708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284951708	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284952710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284952710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284952710	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284953712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284953712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9294	1716284953712	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284954713	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284954713	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284954713	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284955715	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284955715	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284955715	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284956717	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284956717	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284956717	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284957719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284957719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9296	1716284957719	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284958721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284958721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9296	1716284958721	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284959722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284959722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9296	1716284959722	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284960724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	7.8999999999999995	1716284960724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9310999999999998	1716284960724	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284961726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.199999999999999	1716284961726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9310999999999998	1716284961726	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284962728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284962728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9310999999999998	1716284962728	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284963730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284963730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284963730	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284964732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284964732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284964732	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284965734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284965734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284965734	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284966735	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284966735	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716284966735	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284967737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284967737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716284967737	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284968739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284968739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716284968739	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284969741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.399999999999999	1716284969741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284969741	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284970744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284970744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284970744	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284971746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284971746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716284971746	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284972748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284972748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284972748	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284973750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284973750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284973750	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284974752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284974752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284974752	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284975754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284975754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284975754	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284976756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284976756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284976756	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284977758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284977758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347	1716284977758	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284978760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284978760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284978760	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284979761	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284979761	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284979761	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284980763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284980763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9307999999999998	1716284980763	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716284981765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284981765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9327	1716284981765	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716284982767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284982767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9327	1716284982767	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284983769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284983769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9327	1716284983769	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284984771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284984771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284984771	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284985772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284985772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284985772	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284986774	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284986774	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284986774	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284987776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284987776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284987776	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284988780	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284988780	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284988780	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284989781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284989781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716284989781	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284990782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284990782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9334	1716284990782	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284991784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284991784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9334	1716284991784	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284992786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284992786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9334	1716284992786	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716284993788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284993788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284993788	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284994790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284994790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284994790	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284995792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284995792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284995792	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284996794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284996794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284996794	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284997795	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284997795	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284997795	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716284998797	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716284998797	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9335	1716284998797	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716284999799	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716284999799	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716284999799	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	99	1716285000801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285000801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716285000801	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285001803	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285001803	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9274	1716285001803	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285002805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285002805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716285002805	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285003807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285003807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716285003807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285004809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285004809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.931	1716285004809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285005811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285005811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9336	1716285005811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285006812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285006812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9336	1716285006812	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285007814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285007814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9336	1716285007814	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285008816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285008816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9357	1716285008816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285009818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284988804	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284989802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284990806	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284991807	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284992802	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284993809	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284994811	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284995813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284996816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284997813	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284998819	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716284999821	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285000816	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285001826	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285002821	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285003829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285004829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285005824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285006834	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285007837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285008837	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285009842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285010841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285011838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285012847	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285013846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285014849	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285015852	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285016853	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285017846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285018857	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285019856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285020858	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285021854	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285022856	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285023864	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285024865	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285025868	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285026875	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285045883	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285046885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285046885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285046885	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285047886	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285047886	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9341	1716285047886	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285048888	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285048888	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9341	1716285048888	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285049890	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285049890	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9341	1716285049890	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285050892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285050892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285050892	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285051894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285051894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285051894	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285052895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285052895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285052895	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285053897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285053897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285053897	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285054899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285009818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9357	1716285009818	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285010820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285010820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9357	1716285010820	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285011822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285011822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9354	1716285011822	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285012824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285012824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9354	1716285012824	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285013825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285013825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9354	1716285013825	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285014827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285014827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285014827	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285015829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285015829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285015829	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285016831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285016831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285016831	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285017832	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285017832	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9330999999999998	1716285017832	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285018834	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285018834	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9330999999999998	1716285018834	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285019836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285019836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9330999999999998	1716285019836	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285020838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285020838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285020838	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285021840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285021840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285021840	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285022841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285022841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9342000000000001	1716285022841	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285023842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285023842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9319000000000002	1716285023842	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285024844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285024844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9319000000000002	1716285024844	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285025846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285025846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9319000000000002	1716285025846	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285026848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285026848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9345	1716285026848	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285045903	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285046899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285047900	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285048910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285049911	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285050913	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285051908	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285052917	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285053919	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285054899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285054899	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285054915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285055923	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285056927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285057928	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285058929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285059931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285060933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285061933	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285062932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285063941	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285064940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285065942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285066947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285067939	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285068946	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285069950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285070950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285071953	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285072956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285073955	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285074959	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285075962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285076962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285077963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285078965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285079968	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285080970	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285081975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285082973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285083979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285084978	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285085979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285086975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285055901	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285055901	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9364000000000001	1716285055901	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285056903	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285056903	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285056903	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285057905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285057905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285057905	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285058907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285058907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9347999999999999	1716285058907	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285059909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285059909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.935	1716285059909	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285060910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285060910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.935	1716285060910	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285061912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285061912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.935	1716285061912	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285062915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285062915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9339000000000002	1716285062915	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285063916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285063916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9339000000000002	1716285063916	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285064918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285064918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9339000000000002	1716285064918	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285065920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285065920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9375	1716285065920	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285066922	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285066922	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9375	1716285066922	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285067924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285067924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9375	1716285067924	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285068926	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285068926	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285068926	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285069927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285069927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285069927	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285070929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285070929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285070929	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285071931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285071931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9343	1716285071931	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285072932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285072932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9343	1716285072932	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285073934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285073934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9343	1716285073934	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285074937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285074937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285074937	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285075938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285075938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285075938	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285076940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285076940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9361	1716285076940	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285077942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285077942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387999999999999	1716285077942	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716285078944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285078944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387999999999999	1716285078944	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285079947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285079947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387999999999999	1716285079947	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285080948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285080948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9384000000000001	1716285080948	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285081950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285081950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9384000000000001	1716285081950	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285082952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285082952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9384000000000001	1716285082952	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285083954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285083954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285083954	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285084956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.699999999999999	1716285084956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285084956	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285085958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285085958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285085958	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285086960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285086960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285086960	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285087962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285087962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285087962	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285087983	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285088963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285088963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285088963	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285088987	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285089965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285089965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285089965	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285089986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285090967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285090967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285090967	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285090988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285091969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285091969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9377	1716285091969	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285091991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285092971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285092971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716285092971	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285092986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285093973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285093973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716285093973	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285093995	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285094975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285094975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9338	1716285094975	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285095000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285095977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285095977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9383	1716285095977	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285096979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8	1716285096979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9383	1716285096979	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285097981	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.3	1716285097981	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9383	1716285097981	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285098982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285098982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285098982	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285099986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285099986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285099986	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285100988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285100988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385999999999999	1716285100988	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285101990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285101990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9392	1716285101990	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285102991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285102991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9392	1716285102991	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285103993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285103993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9392	1716285103993	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285104995	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285104995	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285104995	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285105997	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285105997	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285105997	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285107000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285107000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285107000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285108002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285108002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285108002	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285109005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285109005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285109005	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285110007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285110007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285110007	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285111009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285111009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9403	1716285111009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285112011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285112011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9403	1716285112011	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285113013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285113013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9401	1716285113013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285114015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285114015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9401	1716285114015	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285115016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285115016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9401	1716285115016	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285116018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285116018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9367999999999999	1716285116018	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285117020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285096000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285097000	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285097994	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285099006	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285100009	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285101010	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285102012	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285103013	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285104014	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285105019	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285106020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285107021	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285108017	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285109027	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285110029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285111030	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285112032	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285113028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285114036	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285115039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285116039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285117043	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285118049	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285119046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285120046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285121050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285122053	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285123047	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285124056	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285125057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285126058	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285127061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285128054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285129063	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285130069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285131067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285132061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285133071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285134072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285135076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285136078	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285137072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285138074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285139083	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285140085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285141089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285142084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285143095	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285144093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285145096	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285146094	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285147090	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285148101	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285149102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285150103	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285151106	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285152099	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285153102	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285154103	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285155114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285156114	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Swap Memory GB	0.0005	1716285157109	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285117020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9367999999999999	1716285117020	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285118022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285118022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9367999999999999	1716285118022	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285119024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285119024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285119024	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285120026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285120026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285120026	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285121028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285121028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9382000000000001	1716285121028	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285122029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285122029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9397	1716285122029	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285123031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285123031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9397	1716285123031	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285124033	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285124033	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9397	1716285124033	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285125035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285125035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285125035	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285126037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285126037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285126037	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285127039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285127039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285127039	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285128041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285128041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.94	1716285128041	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285129042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285129042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.94	1716285129042	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285130044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285130044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.94	1716285130044	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285131046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285131046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9396	1716285131046	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285132048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285132048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9396	1716285132048	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285133050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285133050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9396	1716285133050	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285134052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285134052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9422000000000001	1716285134052	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285135054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285135054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9422000000000001	1716285135054	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285136055	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285136055	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9422000000000001	1716285136055	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	100	1716285137057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285137057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285137057	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285138059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285138059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285138059	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285139061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285139061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9385	1716285139061	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285140062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285140062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9416	1716285140062	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716285141064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285141064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9416	1716285141064	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285142067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285142067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9416	1716285142067	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285143069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285143069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387	1716285143069	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285144071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285144071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387	1716285144071	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285145072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285145072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9387	1716285145072	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285146074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285146074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9415	1716285146074	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285147076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285147076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9415	1716285147076	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285148078	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285148078	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9415	1716285148078	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285149080	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285149080	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9421	1716285149080	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285150082	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285150082	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9421	1716285150082	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285151084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285151084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9421	1716285151084	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285152085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285152085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9418	1716285152085	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	102	1716285153087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285153087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9418	1716285153087	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285154089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285154089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9418	1716285154089	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	103	1716285155091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285155091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9413	1716285155091	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	101	1716285156093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	6.4	1716285156093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9413	1716285156093	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - CPU Utilization	104	1716285157095	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Utilization	8.1	1716285157095	055d82fc50514637ad3c6270a92fb211	0	f
+TOP - Memory Usage GB	1.9413	1716285157095	055d82fc50514637ad3c6270a92fb211	0	f
+\.
+
+
+--
+-- Data for Name: model_version_tags; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.model_version_tags (key, value, name, version) FROM stdin;
+\.
+
+
+--
+-- Data for Name: model_versions; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.model_versions (name, version, creation_time, last_updated_time, description, user_id, current_stage, source, run_id, status, status_message, run_link, storage_location) FROM stdin;
+\.
+
+
+--
+-- Data for Name: params; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.params (key, value, run_uuid) FROM stdin;
+letter	0	7d868b5eb65a46d2aa9a962d24a299bf
+workload	0	7d868b5eb65a46d2aa9a962d24a299bf
+listeners	smi+top+dcgmi	7d868b5eb65a46d2aa9a962d24a299bf
+params	'"-"'	7d868b5eb65a46d2aa9a962d24a299bf
+file	cifar10.py	7d868b5eb65a46d2aa9a962d24a299bf
+workload_listener	''	7d868b5eb65a46d2aa9a962d24a299bf
+letter	0	055d82fc50514637ad3c6270a92fb211
+workload	0	055d82fc50514637ad3c6270a92fb211
+listeners	smi+top+dcgmi	055d82fc50514637ad3c6270a92fb211
+params	'"-"'	055d82fc50514637ad3c6270a92fb211
+file	cifar10.py	055d82fc50514637ad3c6270a92fb211
+workload_listener	''	055d82fc50514637ad3c6270a92fb211
+model	cifar10.py	055d82fc50514637ad3c6270a92fb211
+manual	False	055d82fc50514637ad3c6270a92fb211
+max_epoch	5	055d82fc50514637ad3c6270a92fb211
+max_time	172800	055d82fc50514637ad3c6270a92fb211
+\.
+
+
+--
+-- Data for Name: registered_model_aliases; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.registered_model_aliases (alias, version, name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: registered_model_tags; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.registered_model_tags (key, value, name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: registered_models; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.registered_models (name, creation_time, last_updated_time, description) FROM stdin;
+\.
+
+
+--
+-- Data for Name: runs; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.runs (run_uuid, name, source_type, source_name, entry_point_name, user_id, status, start_time, end_time, source_version, lifecycle_stage, artifact_uri, experiment_id, deleted_time) FROM stdin;
+7d868b5eb65a46d2aa9a962d24a299bf	big-moose-101	UNKNOWN			daga	FAILED	1716283610314	1716283653702		active	s3://mlflow-storage/0/7d868b5eb65a46d2aa9a962d24a299bf/artifacts	0	\N
+055d82fc50514637ad3c6270a92fb211	(0 0) calm-wasp-998	UNKNOWN			daga	FINISHED	1716283795459	1716285157948		active	s3://mlflow-storage/0/055d82fc50514637ad3c6270a92fb211/artifacts	0	\N
+\.
+
+
+--
+-- Data for Name: tags; Type: TABLE DATA; Schema: public; Owner: mlflow_user
+--
+
+COPY public.tags (key, value, run_uuid) FROM stdin;
+mlflow.user	daga	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.source.name	file:///home/daga/radt#examples/pytorch	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.source.type	PROJECT	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.project.entryPoint	main	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.source.git.commit	7d2e33f2e8153fce7cd5f872f07ee41424602571	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.source.git.repoURL	https://github.com/Resource-Aware-Data-systems-RAD/radt.git	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.gitRepoURL	https://github.com/Resource-Aware-Data-systems-RAD/radt.git	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.runName	big-moose-101	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.project.env	conda	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.project.backend	local	7d868b5eb65a46d2aa9a962d24a299bf
+mlflow.user	daga	055d82fc50514637ad3c6270a92fb211
+mlflow.source.name	file:///home/daga/radt#examples/pytorch	055d82fc50514637ad3c6270a92fb211
+mlflow.source.type	PROJECT	055d82fc50514637ad3c6270a92fb211
+mlflow.project.entryPoint	main	055d82fc50514637ad3c6270a92fb211
+mlflow.source.git.commit	7d2e33f2e8153fce7cd5f872f07ee41424602571	055d82fc50514637ad3c6270a92fb211
+mlflow.source.git.repoURL	https://github.com/Resource-Aware-Data-systems-RAD/radt.git	055d82fc50514637ad3c6270a92fb211
+mlflow.gitRepoURL	https://github.com/Resource-Aware-Data-systems-RAD/radt.git	055d82fc50514637ad3c6270a92fb211
+mlflow.project.env	conda	055d82fc50514637ad3c6270a92fb211
+mlflow.project.backend	local	055d82fc50514637ad3c6270a92fb211
+mlflow.runName	(0 0) calm-wasp-998	055d82fc50514637ad3c6270a92fb211
+\.
+
+
+--
+-- Name: experiments_experiment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: mlflow_user
+--
+
+SELECT pg_catalog.setval('public.experiments_experiment_id_seq', 1, false);
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: datasets dataset_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.datasets
+    ADD CONSTRAINT dataset_pk PRIMARY KEY (experiment_id, name, digest);
+
+
+--
+-- Name: experiments experiment_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.experiments
+    ADD CONSTRAINT experiment_pk PRIMARY KEY (experiment_id);
+
+
+--
+-- Name: experiment_tags experiment_tag_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.experiment_tags
+    ADD CONSTRAINT experiment_tag_pk PRIMARY KEY (key, experiment_id);
+
+
+--
+-- Name: experiments experiments_name_key; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.experiments
+    ADD CONSTRAINT experiments_name_key UNIQUE (name);
+
+
+--
+-- Name: input_tags input_tags_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.input_tags
+    ADD CONSTRAINT input_tags_pk PRIMARY KEY (input_uuid, name);
+
+
+--
+-- Name: inputs inputs_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.inputs
+    ADD CONSTRAINT inputs_pk PRIMARY KEY (source_type, source_id, destination_type, destination_id);
+
+
+--
+-- Name: latest_metrics latest_metric_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.latest_metrics
+    ADD CONSTRAINT latest_metric_pk PRIMARY KEY (key, run_uuid);
+
+
+--
+-- Name: metrics metric_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.metrics
+    ADD CONSTRAINT metric_pk PRIMARY KEY (key, "timestamp", step, run_uuid, value, is_nan);
+
+
+--
+-- Name: model_versions model_version_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.model_versions
+    ADD CONSTRAINT model_version_pk PRIMARY KEY (name, version);
+
+
+--
+-- Name: model_version_tags model_version_tag_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.model_version_tags
+    ADD CONSTRAINT model_version_tag_pk PRIMARY KEY (key, name, version);
+
+
+--
+-- Name: params param_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.params
+    ADD CONSTRAINT param_pk PRIMARY KEY (key, run_uuid);
+
+
+--
+-- Name: registered_model_aliases registered_model_alias_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.registered_model_aliases
+    ADD CONSTRAINT registered_model_alias_pk PRIMARY KEY (name, alias);
+
+
+--
+-- Name: registered_models registered_model_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.registered_models
+    ADD CONSTRAINT registered_model_pk PRIMARY KEY (name);
+
+
+--
+-- Name: registered_model_tags registered_model_tag_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.registered_model_tags
+    ADD CONSTRAINT registered_model_tag_pk PRIMARY KEY (key, name);
+
+
+--
+-- Name: runs run_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.runs
+    ADD CONSTRAINT run_pk PRIMARY KEY (run_uuid);
+
+
+--
+-- Name: tags tag_pk; Type: CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.tags
+    ADD CONSTRAINT tag_pk PRIMARY KEY (key, run_uuid);
+
+
+--
+-- Name: index_datasets_dataset_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_datasets_dataset_uuid ON public.datasets USING btree (dataset_uuid);
+
+
+--
+-- Name: index_datasets_experiment_id_dataset_source_type; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_datasets_experiment_id_dataset_source_type ON public.datasets USING btree (experiment_id, dataset_source_type);
+
+
+--
+-- Name: index_inputs_destination_type_destination_id_source_type; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_inputs_destination_type_destination_id_source_type ON public.inputs USING btree (destination_type, destination_id, source_type);
+
+
+--
+-- Name: index_inputs_input_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_inputs_input_uuid ON public.inputs USING btree (input_uuid);
+
+
+--
+-- Name: index_latest_metrics_run_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_latest_metrics_run_uuid ON public.latest_metrics USING btree (run_uuid);
+
+
+--
+-- Name: index_metrics_run_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_metrics_run_uuid ON public.metrics USING btree (run_uuid);
+
+
+--
+-- Name: index_params_run_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_params_run_uuid ON public.params USING btree (run_uuid);
+
+
+--
+-- Name: index_tags_run_uuid; Type: INDEX; Schema: public; Owner: mlflow_user
+--
+
+CREATE INDEX index_tags_run_uuid ON public.tags USING btree (run_uuid);
+
+
+--
+-- Name: datasets datasets_experiment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.datasets
+    ADD CONSTRAINT datasets_experiment_id_fkey FOREIGN KEY (experiment_id) REFERENCES public.experiments(experiment_id);
+
+
+--
+-- Name: experiment_tags experiment_tags_experiment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.experiment_tags
+    ADD CONSTRAINT experiment_tags_experiment_id_fkey FOREIGN KEY (experiment_id) REFERENCES public.experiments(experiment_id);
+
+
+--
+-- Name: latest_metrics latest_metrics_run_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.latest_metrics
+    ADD CONSTRAINT latest_metrics_run_uuid_fkey FOREIGN KEY (run_uuid) REFERENCES public.runs(run_uuid);
+
+
+--
+-- Name: metrics metrics_run_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.metrics
+    ADD CONSTRAINT metrics_run_uuid_fkey FOREIGN KEY (run_uuid) REFERENCES public.runs(run_uuid);
+
+
+--
+-- Name: model_version_tags model_version_tags_name_version_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.model_version_tags
+    ADD CONSTRAINT model_version_tags_name_version_fkey FOREIGN KEY (name, version) REFERENCES public.model_versions(name, version) ON UPDATE CASCADE;
+
+
+--
+-- Name: model_versions model_versions_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.model_versions
+    ADD CONSTRAINT model_versions_name_fkey FOREIGN KEY (name) REFERENCES public.registered_models(name) ON UPDATE CASCADE;
+
+
+--
+-- Name: params params_run_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.params
+    ADD CONSTRAINT params_run_uuid_fkey FOREIGN KEY (run_uuid) REFERENCES public.runs(run_uuid);
+
+
+--
+-- Name: registered_model_aliases registered_model_alias_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.registered_model_aliases
+    ADD CONSTRAINT registered_model_alias_name_fkey FOREIGN KEY (name) REFERENCES public.registered_models(name) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: registered_model_tags registered_model_tags_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.registered_model_tags
+    ADD CONSTRAINT registered_model_tags_name_fkey FOREIGN KEY (name) REFERENCES public.registered_models(name) ON UPDATE CASCADE;
+
+
+--
+-- Name: runs runs_experiment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.runs
+    ADD CONSTRAINT runs_experiment_id_fkey FOREIGN KEY (experiment_id) REFERENCES public.experiments(experiment_id);
+
+
+--
+-- Name: tags tags_run_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: mlflow_user
+--
+
+ALTER TABLE ONLY public.tags
+    ADD CONSTRAINT tags_run_uuid_fkey FOREIGN KEY (run_uuid) REFERENCES public.runs(run_uuid);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
