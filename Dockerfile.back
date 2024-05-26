@@ -19,4 +19,4 @@ ENV AWS_SECRET_ACCESS_KEY=minio_password
 
 EXPOSE 5000
 
-CMD ["bash", "-c", "python -m mlflow server --backend-store-uri duckdb:///log.db --host 0.0.0.0 --default-artifact-root s3://mlflow-storage/ --workers 1"]
+CMD ["/bin/bash"]
